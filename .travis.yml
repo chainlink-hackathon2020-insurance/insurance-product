@@ -1,0 +1,15 @@
+language: node_js
+  - "12"
+
+before_script:
+  - npm install -g ganache-cli
+  - npm install -g truffle@5.1.44
+
+install:
+  - npm install
+
+script:
+  - ganache-cli &
+  - sleep 5
+  - truffle test
+  - truffle migrate
