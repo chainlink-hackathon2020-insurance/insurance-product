@@ -1,6 +1,7 @@
 import React from 'react';
 import logo from './logo.svg';
 import './App.css';
+import { Form, Button } from 'rimble-ui';
 
 /*
 https://github.com/ConsenSys/rimble-ui
@@ -19,7 +20,9 @@ function App() {
           target="_blank"
           rel="noopener noreferrer"
         >
-          Learn React
+      <Button type="submit" width={1}>
+          Sign Up
+        </Button>
         </a>
       </header>
     </div>
