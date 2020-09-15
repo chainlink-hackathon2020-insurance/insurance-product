@@ -10,6 +10,11 @@ import { LoadingContainer } from '@drizzle/react-components'
 import { history, store } from './store'
 import drizzleOptions from './drizzleOptions'
 import {Provider} from "react-redux";
+import { Drizzle, generateStore } from "@drizzle/store"; // fka: drizzle
+
+// Setup drizzle
+const drizzleStore = generateStore(drizzleOptions);
+const drizzle = new Drizzle(drizzleOptions, drizzleStore);
 
 ReactDOM.render((
     <DrizzleProvider options={drizzleOptions} store={store}>
@@ -17,8 +22,7 @@ ReactDOM.render((
           <Provider store={store}>
               <Router history={history} store={store}>
                 <div>
-                    <Route exact path="/" component={App} />
-                    <Route exact path="/profile" component={App} />
+                    <Route exact path="/" component={() => <App drizzle={drizzle} store={drizzleStore} />} />
                 </div>
               </Router>
           </Provider>

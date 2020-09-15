@@ -1,4 +1,4 @@
-import Home from './Home'
+import Home from './home'
 import { drizzleConnect } from '@drizzle/react-plugin'
 
 // May still need this even with data function to refresh component on updates for this contract.
