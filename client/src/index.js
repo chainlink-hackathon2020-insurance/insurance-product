@@ -1,17 +1,29 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import './index.css';
-import App from './App';
-import * as serviceWorker from './serviceWorker';
+import { Router, Route } from 'react-router'
+import { DrizzleProvider } from '@drizzle/react-plugin'
 
-ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
+// Layouts
+import App from './App'
+import { LoadingContainer } from '@drizzle/react-components'
+
+import { history, store } from './store'
+import drizzleOptions from './drizzleOptions'
+import {Provider} from "react-redux";
+
+ReactDOM.render((
+    <DrizzleProvider options={drizzleOptions} store={store}>
+      <LoadingContainer>
+          <Provider store={store}>
+              <Router history={history} store={store}>
+                <div>
+                    <Route exact path="/" component={App} />
+                    <Route exact path="/profile" component={App} />
+                </div>
+              </Router>
+          </Provider>
+      </LoadingContainer>
+    </DrizzleProvider>
+  ),
   document.getElementById('root')
 );
-
-// If you want your app to work offline and load faster, you can change
-// unregister() to register() below. Note this comes with some pitfalls.
-// Learn more about service workers: https://bit.ly/CRA-PWA
-serviceWorker.unregister();

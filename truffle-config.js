@@ -1,4 +1,5 @@
 const HDWalletProvider = require('@truffle/hdwallet-provider')
+const path = require('path');
 
 module.exports = {
   networks: {
@@ -27,4 +28,5 @@ module.exports = {
       version: '0.6.6',
     },
   },
+  contracts_build_directory: path.join(__dirname, "/client/src/abi"),
 }
