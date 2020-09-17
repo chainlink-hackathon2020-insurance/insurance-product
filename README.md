@@ -1,4 +1,5 @@
 # Chainlink Truffle Box
+[![Build Status](https://travis-ci.org/chainlink-hackathon2020-insurance/insurance-product.svg?branch=master)](https://travis-ci.org/chainlink-hackathon2020-insurance/insurance-product)
 
 Implementation of a [Chainlink requesting contract](https://docs.chain.link/docs/create-a-chainlinked-project).
 
