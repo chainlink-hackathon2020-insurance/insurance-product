@@ -1,6 +1,7 @@
 import React, { Component, useState, useEffect } from 'react'
 import {Switch, Route, Link} from 'react-router-dom'
 import HomeContainer from './layouts/home/home.connect'
+import SideBar from './layouts/sidebar/sidebar'
 import HeaderNavContainer from './layouts/header/headernav.connect'
 import { Avatar } from "rimble-ui";
 import { Navbar, Nav, NavDropdown } from 'react-bootstrap';
@@ -36,6 +37,7 @@ function App({ drizzle, drizzleState, store }) {
                             drizzleState={drizzleState}
                             preflightCheck={preflightCheck}
                             />
+                      <SideBar/>      
                 <br/>
                 <br/>
                 <main className="container">

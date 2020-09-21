@@ -4,6 +4,7 @@ import PropTypes from 'prop-types'
 function Home({accounts, drizzleStatus }) {
         return (
             <div className="pure-u-1-1">
+                Testing here
             </div>
         );
 }
