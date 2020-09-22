@@ -22,15 +22,18 @@ function HeaderNav({ drizzle, preflightCheck, address, accountBalances }) {
   const [balance, setBalance] = useState(null);
   const ethersProvider = new ethers.providers.Web3Provider(drizzle.web3.currentProvider);
   
+  async function fetchEns() {
+    try {
+      const name = await ethersProvider.lookupAddress(address);
+      setAccount(name)
+    } catch(e) {
+      setAccount(address)
+    }
+  }
 
-  useEffect(async () => {
+  useEffect(() => {
     if (address) {
-      try {
-        const name = await ethersProvider.lookupAddress(address);
-        setAccount(name)
-      } catch(e) {
-        setAccount(address)
-      }
+      fetchEns();
     }
   }, [address]);
 
@@ -74,7 +77,7 @@ function HeaderNav({ drizzle, preflightCheck, address, accountBalances }) {
                 Balance
               </Text>
               <Text fontSize={1} color={"primary"}>
-                {drizzle.web3.utils.fromWei(balance, "ether")} ETH
+               // {drizzle.web3.utils.fromWei(balance, "ether")} ETH
               </Text>
             </Box>
           </Flex>

@@ -1,8 +1,4 @@
-import React, { Component } from "react";
-import { Navbar, Nav, NavDropdown } from 'react-bootstrap';
-import { withStyles } from '@material-ui/core/styles';
-import AppBar from '@material-ui/core/AppBar';
-import CssBaseline from '@material-ui/core/CssBaseline';
+import React, { useState, useEffect } from "react";
 import Divider from '@material-ui/core/Divider';
 import Drawer from '@material-ui/core/Drawer';
 import Hidden from '@material-ui/core/Hidden';
@@ -17,7 +13,13 @@ import FileIcon from '@material-ui/icons/InsertDriveFile';
 import MoneyIcon from '@material-ui/icons/AttachMoney';
 import HelpIcon from '@material-ui/icons/Help';
 import ContactIcon from '@material-ui/icons/ContactMail';
-
+import ProfileContainer from '../profile/profile.connect'
+import AboutContainer from '../about/about.connect'
+import ContactContainer from '../contact/contact.connect'
+import PolicyContainer from '../policy/policy.connect'
+import ClaimsContainer from '../claims/claims.connect'
+import {Switch, Route, Link} from 'react-router-dom'
+import HomeContainer from '../home/home.connect'
 import styled from "styled-components";
 
 const StyledDrawer = styled(Drawer)`
@@ -26,38 +28,57 @@ const StyledDrawer = styled(Drawer)`
   }
 `;
 
+
+
 function SideBar ({window}) {
-    const container = window !== undefined ? () => window().document.body : undefined;
+    const container = window !== undefined ? () => window.document.body : undefined;
+
+    function getSelected(path) {
+      return window.location.pathname === path;
+    }
+
       const drawer = (
         <div>
           <div />
           <Divider />
           <List>
-          <ListItem button key={"Home"}>
-                <ListItemIcon><HomeIcon /></ListItemIcon>
-                <ListItemText primary={"Home"} />
-          </ListItem>
-          <ListItem button key={"Profile"}>
+          <Link to="/">
+            <ListItem selected={getSelected("/")} button key={"Home"}>
+                  <ListItemIcon><HomeIcon /></ListItemIcon>
+                  <ListItemText primary={"Home"} />
+            </ListItem>
+          </Link>
+          <Link to="/profile">
+          <ListItem selected={getSelected("/profile")} button key={"Profile"} >
                 <ListItemIcon><UserIcon /></ListItemIcon>
                 <ListItemText primary={"Profile"} />
           </ListItem>
-          <ListItem button key={"PolicyRegistration"}>
+          </Link>
+          <Link to="/policy">
+          <ListItem selected={getSelected("/policy")} button key={"PolicyRegistration"} >
                 <ListItemIcon><FileIcon /></ListItemIcon>
                 <ListItemText primary={"Policy Registration"} />
           </ListItem>
-          <ListItem button key={"ClaimProcess"}>
+          </Link>
+          <Link to="/claims">
+          <ListItem selected={getSelected("/claims")} button key={"ClaimProcess"} >
                 <ListItemIcon><MoneyIcon /></ListItemIcon>
                 <ListItemText primary={"Claim Process"} />
           </ListItem>
+          </Link>
           <Divider />
-          <ListItem button key={"About"}>
+          <Link to="/about">
+          <ListItem selected={getSelected("/about")} button key={"About"}>
                 <ListItemIcon><HelpIcon /></ListItemIcon>
                 <ListItemText primary={"About"} />
           </ListItem>
-          <ListItem button key={"Contact"}>
+          </Link>
+          <Link to="/contact">
+          <ListItem selected={getSelected("/contact")} button key={"Contact"}>
                 <ListItemIcon><ContactIcon /></ListItemIcon>
                 <ListItemText primary={"Contact"} />
           </ListItem>
+          </Link>
           </List>
         </div>
       );
@@ -84,6 +105,15 @@ function SideBar ({window}) {
             {drawer}
           </StyledDrawer>
         </Hidden>
+        <Switch>
+                            <Route exact={true} path="/" component={HomeContainer}/>
+                            <Route exact={true} path="/policy" component={PolicyContainer}/>
+                            <Route exact={true} path="/profile" component={ProfileContainer}/>
+                            <Route exact={true} path="/claims" component={ClaimsContainer}/>
+                            <Route exact={true} path="/about" component={AboutContainer}/>
+                            <Route exact={true} path="/contact" component={ContactContainer}/>
+                            <Route exact={true} path="/claims" component={ClaimsContainer}/>
+                    </Switch>
       </nav>
     );
 }

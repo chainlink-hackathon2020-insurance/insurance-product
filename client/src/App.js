@@ -1,11 +1,13 @@
 import React, { Component, useState, useEffect } from 'react'
 import {Switch, Route, Link} from 'react-router-dom'
 import HomeContainer from './layouts/home/home.connect'
-import SideBar from './layouts/sidebar/sidebar'
+import SideBarContainer from './layouts/sidebar/sidebar.connect'
 import HeaderNavContainer from './layouts/header/headernav.connect'
-import { Avatar } from "rimble-ui";
-import { Navbar, Nav, NavDropdown } from 'react-bootstrap';
-
+import ProfileContainer from './layouts/profile/profile.connect'
+import AboutContainer from './layouts/about/about.connect'
+import ContactContainer from './layouts/contact/contact.connect'
+import PolicyContainer from './layouts/policy/policy.connect'
+import ClaimsContainer from './layouts/claims/claims.connect'
 
 // Styles
 import './css/oswald.css'
@@ -37,13 +39,18 @@ function App({ drizzle, drizzleState, store }) {
                             drizzleState={drizzleState}
                             preflightCheck={preflightCheck}
                             />
-                      <SideBar/>      
+                      <SideBarContainer/>      
                 <br/>
                 <br/>
                 <main className="container">
                     <div className="pure-g">
                     <Switch>
                             <Route exact={true} path="/" component={HomeContainer}/>
+                            <Route exact={true} path="/policy" component={PolicyContainer}/>
+                            <Route exact={true} path="/profile" component={ProfileContainer}/>
+                            <Route exact={true} path="/about" component={AboutContainer}/>
+                            <Route exact={true} path="/contact" component={ContactContainer}/>
+                            <Route exact={true} path="/claims" component={ClaimsContainer}/>
                     </Switch>
                     </div>
 
