@@ -19,7 +19,7 @@ import styled from "styled-components";
 
 const StyledDrawer = styled(Drawer)`
   & > div {
-    margin-top: 4.05rem;
+    margin-top: 8rem;
   }
 `;
 

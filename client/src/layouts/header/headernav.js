@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Text, Box, Button, Flex, Image } from "rimble-ui";
 import styled from "styled-components";
 import { drizzleConnect } from "@drizzle/react-plugin";
-import logo from "./../../images/logo.svg";
+import logo from "./../../images/logo.png";
 import walletIcon from "./../../images/icon-wallet.svg";
 import balanceIcon from "./../../images/icon-balance.svg";
 import { ethers } from 'ethers';
@@ -77,7 +77,7 @@ function HeaderNav({ drizzle, preflightCheck, address, accountBalances }) {
                 Balance
               </Text>
               <Text fontSize={1} color={"primary"}>
-                {drizzle.web3.utils.fromWei(balance, "ether")} ETH
+               // {drizzle.web3.utils.fromWei(balance, "ether")} ETH
               </Text>
             </Box>
           </Flex>
