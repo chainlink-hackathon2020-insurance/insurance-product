@@ -77,7 +77,7 @@ function HeaderNav({ drizzle, preflightCheck, address, accountBalances }) {
                 Balance
               </Text>
               <Text fontSize={1} color={"primary"}>
-               // {drizzle.web3.utils.fromWei(balance, "ether")} ETH
+                {drizzle.web3.utils.fromWei(balance, "ether")} ETH
               </Text>
             </Box>
           </Flex>
