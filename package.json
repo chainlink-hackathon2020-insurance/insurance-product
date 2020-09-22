@@ -24,6 +24,7 @@
     "@openzeppelin/test-helpers": "^0.5.6",
     "chai": "^4.2.0",
     "depcheck": "^0.9.1",
+    "husky": "^4.3.0",
     "truffle": "^5.1.5"
   }
 }
