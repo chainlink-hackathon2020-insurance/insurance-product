@@ -1,5 +1,7 @@
 const HDWalletProvider = require('@truffle/hdwallet-provider')
 const path = require('path');
+const fs = require('fs');
+const secrets = JSON.parse(fs.readFileSync('.secrets.json').toString().trim());
 
 module.exports = {
   networks: {
@@ -15,13 +17,24 @@ module.exports = {
     },
     live: {
       provider: () => {
-        return new HDWalletProvider(process.env.MNEMONIC, process.env.RPC_URL)
+        return new HDWalletProvider(secrets.privateKeys, "https://kovan.infura.io/v3/648db1e948ae48e3894afb62ff719d47")
       },
       network_id: '*',
       // ~~Necessary due to https://github.com/trufflesuite/truffle/issues/1971~~
       // Necessary due to https://github.com/trufflesuite/truffle/issues/3008
       skipDryRun: true,
-    },
+    }
+    /*,
+    TODO: Consider deleting this
+    kovan: {
+      provider: () => new HDWalletProvider(
+        secrets.privateKeys,
+        'https://kovan.infura.io/v3/648db1e948ae48e3894afb62ff719d47',
+        0,
+        1
+      ),
+      network_id: 42
+    }*/
   },
   compilers: {
     solc: {

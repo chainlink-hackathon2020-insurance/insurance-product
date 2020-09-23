@@ -1,4 +1,4 @@
-const MyContract = artifacts.require('MyContract')
+const MarineInsurance = artifacts.require('MarineInsurance')
 
 /*
   This script makes it easy to read the data variable
@@ -6,7 +6,7 @@ const MyContract = artifacts.require('MyContract')
 */
 
 module.exports = async callback => {
-  const mc = await MyContract.deployed()
+  const mc = await MarineInsurance.deployed()
   const data = await mc.data.call()
   callback(data)
 }

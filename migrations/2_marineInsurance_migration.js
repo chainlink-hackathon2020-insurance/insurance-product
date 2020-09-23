@@ -1,4 +1,4 @@
-const MyContract = artifacts.require('MyContract')
+const MarineInsurance = artifacts.require('MarineInsurance')
 const { LinkToken } = require('@chainlink/contracts/truffle/v0.4/LinkToken')
 const { Oracle } = require('@chainlink/contracts/truffle/v0.6/Oracle')
 
@@ -11,13 +11,13 @@ module.exports = async (deployer, network, [defaultAccount]) => {
     try {
       await deployer.deploy(LinkToken, { from: defaultAccount })
       await deployer.deploy(Oracle, LinkToken.address, { from: defaultAccount })
-      await deployer.deploy(MyContract, LinkToken.address)
+      await deployer.deploy(MarineInsurance, LinkToken.address)
     } catch (err) {
       console.error(err)
     }
   } else {
     // For live networks, use the 0 address to allow the ChainlinkRegistry
     // contract automatically retrieve the correct address for you
-    deployer.deploy(MyContract, '0x0000000000000000000000000000000000000000')
+    deployer.deploy(MarineInsurance, '0x0000000000000000000000000000000000000000')
   }
 }

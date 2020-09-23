@@ -1,4 +1,4 @@
-const MyContract = artifacts.require('MyContract')
+const MarineInsurance = artifacts.require('MarineInsurance')
 
 /*
   This script allows for a Chainlink request to be created from
@@ -8,9 +8,9 @@ const MyContract = artifacts.require('MyContract')
 
 const oracleAddress =
   process.env.TRUFFLE_CL_BOX_ORACLE_ADDRESS ||
-  '0xc99B3D447826532722E41bc36e644ba3479E4365'
+  '0x2f90A6D021db21e1B2A077c5a37B3C7E75D15b7e'
 const jobId =
-  process.env.TRUFFLE_CL_BOX_JOB_ID || '3cff0a3524694ff8834bda9cf9c779a1'
+  process.env.TRUFFLE_CL_BOX_JOB_ID || '29fa9aa13bf1468788b7cc4a500a45b8'
 const payment = process.env.TRUFFLE_CL_BOX_PAYMENT || '1000000000000000000'
 const url =
   process.env.TRUFFLE_CL_BOX_URL ||
@@ -19,7 +19,7 @@ const path = process.env.TRUFFLE_CL_BOX_JSON_PATH || 'USD'
 const times = process.env.TRUFFLE_CL_BOX_TIMES || '100'
 
 module.exports = async callback => {
-  const mc = await MyContract.deployed()
+  const mc = await MarineInsurance.deployed()
   console.log('Creating request on contract:', mc.address)
   const tx = await mc.createRequestTo(
     oracleAddress,

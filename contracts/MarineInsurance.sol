@@ -1,8 +1,8 @@
 pragma solidity ^0.6.0;
 pragma experimental ABIEncoderV2;
 
-import "https://raw.githubusercontent.com/smartcontractkit/chainlink/develop/evm-contracts/src/v0.6/ChainlinkClient.sol";
-import "https://raw.githubusercontent.com/smartcontractkit/chainlink/develop/evm-contracts/src/v0.6/vendor/Ownable.sol";
+import "@chainlink/contracts/src/v0.6/ChainlinkClient.sol";
+import "@chainlink/contracts/src/v0.6/vendor/Ownable.sol";
 
 contract MarineInsurance is ChainlinkClient, Ownable{
 
