@@ -17,7 +17,7 @@ module.exports = {
     },
     live: {
       provider: () => {
-        return new HDWalletProvider(secrets.privateKeys, "https://kovan.infura.io/v3/648db1e948ae48e3894afb62ff719d47")
+        return new HDWalletProvider(process.env.MNEMONIC, process.env.RPC_URL)
       },
       network_id: '*',
       // ~~Necessary due to https://github.com/trufflesuite/truffle/issues/1971~~
@@ -28,8 +28,7 @@ module.exports = {
     TODO: Consider deleting this
     kovan: {
       provider: () => new HDWalletProvider(
-        secrets.privateKeys,
-        'https://kovan.infura.io/v3/648db1e948ae48e3894afb62ff719d47',
+        process.env.MNEMONIC, process.env.RPC_URL,
         0,
         1
       ),
