@@ -13,7 +13,9 @@ import FileIcon from '@material-ui/icons/InsertDriveFile';
 import MoneyIcon from '@material-ui/icons/AttachMoney';
 import HelpIcon from '@material-ui/icons/Help';
 import ContactIcon from '@material-ui/icons/ContactMail';
-import {Switch, Route, Link} from 'react-router-dom'
+import DashboardIcon from '@material-ui/icons/Dashboard';
+
+import { Switch, Route, Link } from 'react-router-dom'
 
 import styled from "styled-components";
 
@@ -25,83 +27,88 @@ const StyledDrawer = styled(Drawer)`
 
 
 
-function SideBar ({window}) {
-    const container = window !== undefined ? () => window.document.body : undefined;
+function SideBar({ window, drizzle }) {
+  const container = window !== undefined ? () => window.document.body : undefined;
+  function getSelected(path) {
+    return window.location.pathname === path;
+  }
 
-    function getSelected(path) {
-      return window.location.pathname === path;
-    }
-
-      const drawer = (
-        <div>
-          <div />
-          <Divider />
-          <List>
-          <Link to="/">
-            <ListItem selected={getSelected("/")} button key={"Home"}>
-                  <ListItemIcon><HomeIcon /></ListItemIcon>
-                  <ListItemText primary={"Home"} />
-            </ListItem>
-          </Link>
-          <Link to="/profile">
+  const drawer = (
+    <div>
+      <div />
+      <Divider />
+      <List>
+        <Link to="/">
+          <ListItem selected={getSelected("/")} button key={"Home"}>
+            <ListItemIcon><HomeIcon /></ListItemIcon>
+            <ListItemText primary={"Home"} />
+          </ListItem>
+        </Link>
+        <Link to="/profile">
           <ListItem selected={getSelected("/profile")} button key={"Profile"} >
-                <ListItemIcon><UserIcon /></ListItemIcon>
-                <ListItemText primary={"Profile"} />
+            <ListItemIcon><UserIcon /></ListItemIcon>
+            <ListItemText primary={"Profile"} />
           </ListItem>
-          </Link>
-          <Link to="/policy">
+        </Link>
+        <Link to="/policy">
           <ListItem selected={getSelected("/policy")} button key={"PolicyRegistration"} >
-                <ListItemIcon><FileIcon /></ListItemIcon>
-                <ListItemText primary={"Policy Registration"} />
+            <ListItemIcon><FileIcon /></ListItemIcon>
+            <ListItemText primary={"Policy Registration"} />
           </ListItem>
-          </Link>
-          <Link to="/claims">
+        </Link>
+        <Link to="/claims">
           <ListItem selected={getSelected("/claims")} button key={"ClaimProcess"} >
-                <ListItemIcon><MoneyIcon /></ListItemIcon>
-                <ListItemText primary={"Claim Process"} />
+            <ListItemIcon><MoneyIcon /></ListItemIcon>
+            <ListItemText primary={"Claim Process"} />
           </ListItem>
-          </Link>
-          <Divider />
-          <Link to="/about">
+        </Link>
+        <Link to="/dashboard">
+          <ListItem selected={getSelected("/dashboard")} button key={"Dashboard"}>
+            <ListItemIcon><DashboardIcon /></ListItemIcon>
+            <ListItemText primary={"Dashboard"} />
+          </ListItem>
+        </Link>
+        <Divider />
+        <Link to="/about">
           <ListItem selected={getSelected("/about")} button key={"About"}>
-                <ListItemIcon><HelpIcon /></ListItemIcon>
-                <ListItemText primary={"About"} />
+            <ListItemIcon><HelpIcon /></ListItemIcon>
+            <ListItemText primary={"About"} />
           </ListItem>
-          </Link>
-          <Link to="/contact">
+        </Link>
+        <Link to="/contact">
           <ListItem selected={getSelected("/contact")} button key={"Contact"}>
-                <ListItemIcon><ContactIcon /></ListItemIcon>
-                <ListItemText primary={"Contact"} />
+            <ListItemIcon><ContactIcon /></ListItemIcon>
+            <ListItemText primary={"Contact"} />
           </ListItem>
-          </Link>
-          </List>
-        </div>
-      );
-    return (
-        <nav aria-label="mailbox folders">
-        {/* The implementation can be swapped with js to avoid SEO duplication of links. */}
-        <Hidden smUp implementation="css">
-          <StyledDrawer className="drawer"
-            container={container}
-            variant="temporary"
-            anchor={'right'}
-            ModalProps={{
-              keepMounted: true, // Better open performance on mobile.
-            }}
-          >
-            {drawer}
-          </StyledDrawer>
-        </Hidden>
-        <Hidden xsDown implementation="css">
-          <StyledDrawer
-            variant="permanent"
-            open
-          >
-            {drawer}
-          </StyledDrawer>
-        </Hidden>
-      </nav>
-    );
+        </Link>
+      </List>
+    </div>
+  );
+  return (
+    <nav aria-label="mailbox folders">
+      {/* The implementation can be swapped with js to avoid SEO duplication of links. */}
+      <Hidden smUp implementation="css">
+        <StyledDrawer className="drawer"
+          container={container}
+          variant="temporary"
+          anchor={'right'}
+          ModalProps={{
+            keepMounted: true, // Better open performance on mobile.
+          }}
+        >
+          {drawer}
+        </StyledDrawer>
+      </Hidden>
+      <Hidden xsDown implementation="css">
+        <StyledDrawer
+          variant="permanent"
+          open
+        >
+          {drawer}
+        </StyledDrawer>
+      </Hidden>
+    </nav>
+  );
 }
 
 export default SideBar;

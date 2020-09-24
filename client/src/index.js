@@ -27,6 +27,7 @@ ReactDOM.render((
             <Route exact path="/claims" component={() => <App drizzle={drizzle} store={drizzleStore} />} />
             <Route exact path="/about" component={() => <App drizzle={drizzle} store={drizzleStore} />} />
             <Route exact path="/contact" component={() => <App drizzle={drizzle} store={drizzleStore} />} />
+            <Route exact path="/dashboard" component={() => <App drizzle={drizzle} store={drizzleStore} />} />
           </div>
         </Router>
       </Provider>

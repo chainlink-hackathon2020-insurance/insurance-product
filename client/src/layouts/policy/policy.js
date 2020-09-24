@@ -1,4 +1,4 @@
-import React, { Component, useState, useEffect } from 'react'
+import React, { Component, useState, useEffect, createContext } from 'react'
 import PropTypes from 'prop-types'
 import Stepper from '@material-ui/core/Stepper';
 import Step from '@material-ui/core/Step';
@@ -8,7 +8,10 @@ import Typography from '@material-ui/core/Typography';
 import styled from "styled-components";
 import { EthAddress } from "rimble-ui";
 import { MetaMaskButton } from 'rimble-ui';
-
+import { Field, Input, Form, Flex, Box, Heading, Select } from 'rimble-ui';
+import Map from 'pigeon-maps'
+import Marker from 'pigeon-marker'
+import Overlay from 'pigeon-overlay'
 
 const StyledButton = styled(Button)`
     margin-right: 1rem;
@@ -20,35 +23,190 @@ marginBottom: 1rem;
 `;
 
 function getSteps() {
-  return ['Policy Registration', 'Policy Review Details', 'Payment'];
+  return ['Dates', 'Locations', 'Cargo Details', 'Coverage & Payout', 'Review & Purchase'];
 }
 
-function getStepContent(step) {
-  switch (step) {
-    case 0:
-      return 'Select campaign settings...';
-    case 1:
-      return 'What is an ad group anyways?';
-    case 2:
-      return (<div>
-        <br />
-        <EthAddress address="0x9505C8Fc1aD98b0aC651b91245d02D055fEc8E49" />
-        <br />
-        <MetaMaskButton.Outline>Pay with MetaMask</MetaMaskButton.Outline>
-      </div>
-      );
-    default:
-      return 'Unknown step';
-  }
-}
 
-function Policy({ accounts, contract }) {
+function  Policy({ accounts }, context) {
   const [activeStep, setActiveStep] = useState(0);
   const [skipped, setSkipped] = useState(new Set());
+  const [dateValidated, setDateValidated] = useState(false);
+  const contract = context.drizzle.contracts.MarineInsurance;
   const steps = getSteps();
 
+  function getStepContent(step) {
+    switch (step) {
+      case 0:
+        return (<div className="box-left">
+          <br />
+          <br />
+          <Form validated={dateValidated}>
+            <Flex mx={-3} flexWrap={"wrap"}>
+              <Box px={3}>
+                <Heading.h2>Protect your business with additional named peril insurance</Heading.h2>
+                <Heading.h5 color="#666">Insurance is a life preserver you can always count on when you are sailing through uncharted waters.</Heading.h5>
+              </Box>
+            </Flex>
+            <br />
+            <Flex mx={-3} flexWrap={"wrap"}>
+              <Box width={[1, 1, 1 / 2]} px={3}>
+                <Field label="From">
+                  <Input type="date" required validated={false} min={new Date().toISOString().split('T')[0]} />
+                </Field>
+              </Box>
+              <Field label="To">
+                <Input type="date" required validated={false} min={new Date().toISOString().split('T')[0]} />
+              </Field>
+            </Flex>
+
+          </Form>
+        </div>
+        );
+      case 1:
+        return (
+          <div className="box-left">
+            <br />
+            <br />
+            <Form validated={dateValidated}>
+              <Flex mx={-3} flexWrap={"wrap"}>
+                <Box px={3}>
+                  <Heading.h2>Select a Coverage Location</Heading.h2>
+                </Box>
+              </Flex>
+              <br />
+              <Flex mx={-3} flexWrap={"wrap"}>
+            <Box width={[1, 1, 1/2]} px={3}>
+            <Map center={[50.879, 4.6997]} zoom={12} width={400} height={400}>
+                    <Marker anchor={[50.874, 4.6947]} payload={1} onClick={({ event, anchor, payload }) => { }} />
+                    <Marker anchor={[50.874, 4.7947]} payload={1} onClick={({ event, anchor, payload }) => { }} />
+                  </Map>
+            </Box>
+            <Box width={[1, 1, 1/2]} px={3}>
+            <Flex mx={-3} flexWrap={"wrap"}>
+                <Box width={[1, 1, 1 / 2]} px={3}>
+                  <Field label="Starting location of voyage">
+                    <Input type="text" required={true} placeholder="Coordinates" />
+                  </Field>
+                </Box>
+              </Flex>
+              
+              <Flex mx={-3} flexWrap={"wrap"}>
+                <Box width={[1, 1, 1 / 2]} px={3}>
+                  <Field label="Ending location of voyage">
+                    <Input type="text" required={true} placeholder="Coordinates" />
+                  </Field>
+                </Box>
+              </Flex>
+            </Box>
+          </Flex>
+
+            </Form>
+          </div>
+        ); case 2:
+        return (<div>
+        <Form>
+          <Flex mx={-3} flexWrap={"wrap"}>
+            <Box width={[1, 1, 1/2]} px={3}>
+              <Field label="Plain Input"  width={1}>
+                <Input
+                  type="text"
+                  required // set required attribute to use brower's HTML5 input validation
+                  width={1}
+                />
+              </Field>
+            </Box>
+            <Box width={[1, 1, 1/2]} px={3}>
+              <Field label="Form Email Input"  width={1}>
+                <Form.Input
+                  type="email"
+                  required // set required attribute to use brower's HTML5 input validation
+                  width={1}
+                />
+              </Field>
+            </Box>
+          </Flex>
+          <Flex mx={-3} flexWrap={"wrap"}>
+            <Box width={[1, 1, 1/2]} px={3}>
+              <Field label="Plain Input"  width={1}>
+                <Input
+                  type="text"
+                  required // set required attribute to use brower's HTML5 input validation
+                  width={1}
+                />
+              </Field>
+            </Box>
+            <Box width={[1, 1, 1/2]} px={3}>
+              <Field label="Form Email Input"  width={1}>
+                <Form.Input
+                  type="email"
+                  required // set required attribute to use brower's HTML5 input validation
+                  width={1}
+                />
+              </Field>
+            </Box>
+          </Flex>
+        </Form>
+        </div>
+        ); case 3:
+        return (<div>
+        <Form>
+          <Flex mx={-3} flexWrap={"wrap"}>
+            <Box width={[1, 1, 1/2]} px={3}>
+              <Field label="Plain Input"  width={1}>
+                <Input
+                  type="text"
+                  required // set required attribute to use brower's HTML5 input validation
+                  width={1}
+                />
+              </Field>
+            </Box>
+            <Box width={[1, 1, 1/2]} px={3}>
+              <Field label="Form Email Input"  width={1}>
+                <Form.Input
+                  type="email"
+                  required // set required attribute to use brower's HTML5 input validation
+                  width={1}
+                />
+              </Field>
+            </Box>
+          </Flex>
+          <Flex mx={-3} flexWrap={"wrap"}>
+            <Box width={[1, 1, 1/2]} px={3}>
+              <Field label="Plain Input"  width={1}>
+                <Input
+                  type="text"
+                  required // set required attribute to use brower's HTML5 input validation
+                  width={1}
+                />
+              </Field>
+            </Box>
+            <Box width={[1, 1, 1/2]} px={3}>
+              <Field label="Form Email Input"  width={1}>
+                <Form.Input
+                  type="email"
+                  required // set required attribute to use brower's HTML5 input validation
+                  width={1}
+                />
+              </Field>
+            </Box>
+          </Flex>
+        </Form>
+        </div>
+        ); case 4:
+        return (<div>
+          <br />
+          <EthAddress address="0x9505C8Fc1aD98b0aC651b91245d02D055fEc8E49" />
+          <br />
+          <MetaMaskButton.Outline>Pay with MetaMask</MetaMaskButton.Outline>
+        </div>
+        );
+      default:
+        return 'Unknown step';
+    }
+  }
+
   const isStepOptional = (step) => {
-    return step === 1;
+    return step === -1;
   };
 
   const isStepSkipped = (step) => {
@@ -121,7 +279,7 @@ function Policy({ accounts, contract }) {
         ) : (
             <div>
               <br />
-              <StyledTypography >{getStepContent(activeStep)}</StyledTypography>
+              <StyledTypography>{getStepContent(activeStep)}</StyledTypography>
               <br />
               <br />
               <div>
@@ -145,5 +303,8 @@ function Policy({ accounts, contract }) {
   );
 }
 
+Policy.contextTypes = {
+  drizzle: PropTypes.object
+};
 
 export default Policy

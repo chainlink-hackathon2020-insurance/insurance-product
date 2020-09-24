@@ -8,6 +8,7 @@ import AboutContainer from './layouts/about/about.connect'
 import ContactContainer from './layouts/contact/contact.connect'
 import PolicyContainer from './layouts/policy/policy.connect'
 import ClaimsContainer from './layouts/claims/claims.connect'
+import DashboardContainer from './layouts/dashboard/dashboard.connect'
 
 // Styles
 import './css/oswald.css'
@@ -39,14 +40,15 @@ function App({ drizzle, drizzleState, store }) {
         drizzleState={drizzleState}
         preflightCheck={preflightCheck}
       />
-      <SideBarContainer />
+      <SideBarContainer drizzle={drizzle} />
       <main className="container">
         <div className="pure-g">
           <Switch>
-            <Route exact={true} path="/" component={() => <HomeContainer contract={drizzle.contracts.MarineInsurance} />} />
-            <Route exact={true} path="/policy" component={() => <PolicyContainer contract={drizzle.contracts.MarineInsurance} />} />
-            <Route exact={true} path="/profile" component={() => <ProfileContainer contract={drizzle.contracts.MarineInsurance} />} />
-            <Route exact={true} path="/claims" component={() => <ClaimsContainer contract={drizzle.contracts.MarineInsurance} />} />
+            <Route exact={true} path="/" component={HomeContainer} />
+            <Route exact={true} path="/policy" component={PolicyContainer} />
+            <Route exact={true} path="/profile" component={ProfileContainer} />
+            <Route exact={true} path="/claims" component={ClaimsContainer} />
+            <Route exact={true} path="/dashboard" component={DashboardContainer} />
             <Route exact={true} path="/about" component={AboutContainer} />
             <Route exact={true} path="/contact" component={ContactContainer} />
           </Switch>
