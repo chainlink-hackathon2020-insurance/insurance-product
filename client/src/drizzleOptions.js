@@ -1,4 +1,4 @@
-import InsuranceContract from './abi/MyContract.json'
+import MarineInsurance from './abi/MarineInsurance.json'
 const drizzleOptions = {
   web3: {
     block: false,
@@ -8,7 +8,7 @@ const drizzleOptions = {
     }
   },
   contracts: [
-    InsuranceContract
+    MarineInsurance
   ],
   events: {
   },

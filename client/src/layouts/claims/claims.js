@@ -37,7 +37,7 @@ function getStepContent(step) {
     }
 }
 
-function Claims({ accounts, drizzleStatus }) {
+function Claims({ accounts, contract }) {
     const [activeStep, setActiveStep] = useState(0);
     const [skipped, setSkipped] = useState(new Set());
     const steps = getSteps();

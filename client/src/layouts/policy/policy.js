@@ -42,7 +42,7 @@ function getStepContent(step) {
   }
 }
 
-function Policy({ accounts, drizzleStatus }) {
+function Policy({ accounts, contract }) {
   const [activeStep, setActiveStep] = useState(0);
   const [skipped, setSkipped] = useState(new Set());
   const steps = getSteps();

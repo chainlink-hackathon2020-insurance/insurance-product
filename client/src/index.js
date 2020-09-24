@@ -15,7 +15,6 @@ import { Drizzle, generateStore } from "@drizzle/store"; // fka: drizzle
 // Setup drizzle
 const drizzleStore = generateStore(drizzleOptions);
 const drizzle = new Drizzle(drizzleOptions, drizzleStore);
-
 ReactDOM.render((
   <DrizzleProvider options={drizzleOptions} store={store}>
     <LoadingContainer>

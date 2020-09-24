@@ -43,12 +43,12 @@ function App({ drizzle, drizzleState, store }) {
       <main className="container">
         <div className="pure-g">
           <Switch>
-            <Route exact={true} path="/" component={HomeContainer} />
-            <Route exact={true} path="/policy" component={PolicyContainer} />
-            <Route exact={true} path="/profile" component={ProfileContainer} />
+            <Route exact={true} path="/" component={() => <HomeContainer contract={drizzle.contracts.MarineInsurance} />} />
+            <Route exact={true} path="/policy" component={() => <PolicyContainer contract={drizzle.contracts.MarineInsurance} />} />
+            <Route exact={true} path="/profile" component={() => <ProfileContainer contract={drizzle.contracts.MarineInsurance} />} />
+            <Route exact={true} path="/claims" component={() => <ClaimsContainer contract={drizzle.contracts.MarineInsurance} />} />
             <Route exact={true} path="/about" component={AboutContainer} />
             <Route exact={true} path="/contact" component={ContactContainer} />
-            <Route exact={true} path="/claims" component={ClaimsContainer} />
           </Switch>
         </div>
 
