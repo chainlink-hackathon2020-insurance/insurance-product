@@ -1,4 +1,6 @@
 import MarineInsurance from './abi/MarineInsurance.json'
+import AssetTracker from './abi/AssetTracker.json'
+
 const drizzleOptions = {
   web3: {
     block: false,
@@ -8,7 +10,8 @@ const drizzleOptions = {
     }
   },
   contracts: [
-    MarineInsurance
+    MarineInsurance,
+    AssetTracker
   ],
   events: {
   },

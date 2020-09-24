@@ -19,10 +19,10 @@ function Profile({ accounts, address, contract }) {
 
 
     useEffect(() => {
-        if (policies) {
+        if (address) {
             getPolicies();
         }
-    }, [policies]);
+    }, [address]);
 
     async function getPolicies() {
         const data = await c.methods.getInsurancePolicies(address).call();
