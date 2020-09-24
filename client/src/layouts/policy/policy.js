@@ -6,9 +6,9 @@ import StepLabel from '@material-ui/core/StepLabel';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import styled from "styled-components";
-import { EthAddress } from "rimble-ui";
+import { EthAddress, Link } from "rimble-ui";
 import { MetaMaskButton } from 'rimble-ui';
-import { Field, Input, Form, Flex, Box, Heading, Select } from 'rimble-ui';
+import { Field, Input, Form, Flex, Box, Heading, Select, Tooltip, Modal, Card, Icon, Text, Loader } from 'rimble-ui';
 import Map from 'pigeon-maps'
 import Marker from 'pigeon-marker'
 import Overlay from 'pigeon-overlay'
@@ -27,10 +27,23 @@ function getSteps() {
 }
 
 
-function  Policy({ accounts }, context) {
+function Policy({ accounts }, context) {
   const [activeStep, setActiveStep] = useState(0);
   const [skipped, setSkipped] = useState(new Set());
-  const [dateValidated, setDateValidated] = useState(false);
+  const [startDate, setStartDate] = useState(undefined);
+  const [endDate, setEndDate] = useState(undefined);
+  const [locations, setLocations] = useState([]);
+  const [mapFirstClick, setMapFirstClick] = useState(true);
+  const [premium, setPremium] = useState(undefined);
+  const [mapProperties, setMapProperties] = useState({
+    center: [50.1102, 3.1506],
+    zoom: 4,
+    minZoom: 3,
+    maxZoom: 16,
+  })
+  const [cargoDetails, setCargoDetails] = useState({
+    shipmentValue: 0
+  })
   const contract = context.drizzle.contracts.MarineInsurance;
   const steps = getSteps();
 
@@ -40,7 +53,7 @@ function  Policy({ accounts }, context) {
         return (<div className="box-left">
           <br />
           <br />
-          <Form validated={dateValidated}>
+          <Form validated={true}>
             <Flex mx={-3} flexWrap={"wrap"}>
               <Box px={3}>
                 <Heading.h2>Protect your business with additional named peril insurance</Heading.h2>
@@ -50,12 +63,15 @@ function  Policy({ accounts }, context) {
             <br />
             <Flex mx={-3} flexWrap={"wrap"}>
               <Box width={[1, 1, 1 / 2]} px={3}>
-                <Field label="From">
-                  <Input type="date" required validated={false} min={new Date().toISOString().split('T')[0]} />
+                <Field label="From" >
+                  <Input type="date" required value={startDate} onChange={(e) => setStartDate(e.target.value)}
+
+                    min={new Date().toISOString().split('T')[0]} />
                 </Field>
               </Box>
-              <Field label="To">
-                <Input type="date" required validated={false} min={new Date().toISOString().split('T')[0]} />
+              <Field label="To" >
+                <Input type="date" required value={endDate} onChange={(e) => setEndDate(e.target.value)}
+                  min={new Date().toISOString().split('T')[0]} />
               </Field>
             </Flex>
 
@@ -67,7 +83,7 @@ function  Policy({ accounts }, context) {
           <div className="box-left">
             <br />
             <br />
-            <Form validated={dateValidated}>
+            <Form validated={true}>
               <Flex mx={-3} flexWrap={"wrap"}>
                 <Box px={3}>
                   <Heading.h2>Select a Coverage Location</Heading.h2>
@@ -75,126 +91,179 @@ function  Policy({ accounts }, context) {
               </Flex>
               <br />
               <Flex mx={-3} flexWrap={"wrap"}>
-            <Box width={[1, 1, 1/2]} px={3}>
-            <Map center={[50.879, 4.6997]} zoom={12} width={400} height={400}>
-                    <Marker anchor={[50.874, 4.6947]} payload={1} onClick={({ event, anchor, payload }) => { }} />
-                    <Marker anchor={[50.874, 4.7947]} payload={1} onClick={({ event, anchor, payload }) => { }} />
+                <Box style={{ height: '40vh', width: '100%' }} width={[1, 1, 1 / 2]} px={3}>
+                  <Map onClick={onMapClick}
+                    center={mapProperties.center}
+                    zoom={mapProperties.zoom}
+                    minZoom={mapProperties.minZoom}
+                    maxZoom={mapProperties.maxZoom}
+
+                  >
+                    {locations.map((cordinate, i) => (
+                      <Marker anchor={[cordinate.lat, cordinate.long]} payload={1} onClick={({ event, anchor, payload }) => { }} />
+                    ))
+                    }
                   </Map>
-            </Box>
-            <Box width={[1, 1, 1/2]} px={3}>
-            <Flex mx={-3} flexWrap={"wrap"}>
+                </Box>
                 <Box width={[1, 1, 1 / 2]} px={3}>
-                  <Field label="Starting location of voyage">
-                    <Input type="text" required={true} placeholder="Coordinates" />
-                  </Field>
+                  <Flex mx={-3} flexWrap={"wrap"}>
+                    <Box width={[1, 1, 1 / 2]} px={3}>
+                      <Field label="Starting location of voyage">
+                        <Input type="text" disabled required value={locations.length > 0 ? getCordinateFormat(locations[0]) : ''} />
+                      </Field>
+                    </Box>
+                  </Flex>
+
+                  <Flex mx={-3} flexWrap={"wrap"}>
+                    <Box width={[1, 1, 1 / 2]} px={3}>
+                      <Field label="Ending location of voyage">
+                        <Input type="text" disabled required value={locations.length > 1 ? getCordinateFormat(locations[1]) : ''} />
+                      </Field>
+                    </Box>
+                  </Flex>
                 </Box>
               </Flex>
-              
-              <Flex mx={-3} flexWrap={"wrap"}>
-                <Box width={[1, 1, 1 / 2]} px={3}>
-                  <Field label="Ending location of voyage">
-                    <Input type="text" required={true} placeholder="Coordinates" />
-                  </Field>
-                </Box>
-              </Flex>
-            </Box>
-          </Flex>
 
             </Form>
           </div>
         ); case 2:
         return (<div>
-        <Form>
-          <Flex mx={-3} flexWrap={"wrap"}>
-            <Box width={[1, 1, 1/2]} px={3}>
-              <Field label="Plain Input"  width={1}>
-                <Input
-                  type="text"
-                  required // set required attribute to use brower's HTML5 input validation
-                  width={1}
-                />
-              </Field>
-            </Box>
-            <Box width={[1, 1, 1/2]} px={3}>
-              <Field label="Form Email Input"  width={1}>
-                <Form.Input
-                  type="email"
-                  required // set required attribute to use brower's HTML5 input validation
-                  width={1}
-                />
-              </Field>
-            </Box>
-          </Flex>
-          <Flex mx={-3} flexWrap={"wrap"}>
-            <Box width={[1, 1, 1/2]} px={3}>
-              <Field label="Plain Input"  width={1}>
-                <Input
-                  type="text"
-                  required // set required attribute to use brower's HTML5 input validation
-                  width={1}
-                />
-              </Field>
-            </Box>
-            <Box width={[1, 1, 1/2]} px={3}>
-              <Field label="Form Email Input"  width={1}>
-                <Form.Input
-                  type="email"
-                  required // set required attribute to use brower's HTML5 input validation
-                  width={1}
-                />
-              </Field>
-            </Box>
-          </Flex>
-        </Form>
+          <Form validated={true}>
+            <Flex mx={-3} flexWrap={"wrap"}>
+              <Box width={[1, 1, 1 / 2]} px={3}>
+                <Field label="Shipment Value" width={1}>
+                  <Input
+                    type="number"
+                    required // set required attribute to use brower's HTML5 input validation
+                    width={1}
+                    onChange={(e) => setCargoDetails({ shipmentValue: e.target.value })}
+                    value={cargoDetails.shipmentValue}
+                  />
+                </Field>
+              </Box>
+              <Box width={[1, 1, 1 / 2]} px={3}>
+                <Field label="Form Email Input" width={1}>
+                  <Form.Input
+                    type="email"
+                    required // set required attribute to use brower's HTML5 input validation
+                    width={1}
+                  />
+                </Field>
+              </Box>
+            </Flex>
+            <Flex mx={-3} flexWrap={"wrap"}>
+              <Box width={[1, 1, 1 / 2]} px={3}>
+                <Field label="Plain Input" width={1}>
+                  <Input
+                    type="text"
+                    required // set required attribute to use brower's HTML5 input validation
+                    width={1}
+                  />
+                </Field>
+              </Box>
+              <Box width={[1, 1, 1 / 2]} px={3}>
+                <Field label="Form Email Input" width={1}>
+                  <Form.Input
+                    type="email"
+                    required // set required attribute to use brower's HTML5 input validation
+                    width={1}
+                  />
+                </Field>
+              </Box>
+            </Flex>
+          </Form>
         </div>
         ); case 3:
         return (<div>
-        <Form>
-          <Flex mx={-3} flexWrap={"wrap"}>
-            <Box width={[1, 1, 1/2]} px={3}>
-              <Field label="Plain Input"  width={1}>
-                <Input
-                  type="text"
-                  required // set required attribute to use brower's HTML5 input validation
-                  width={1}
-                />
-              </Field>
-            </Box>
-            <Box width={[1, 1, 1/2]} px={3}>
-              <Field label="Form Email Input"  width={1}>
-                <Form.Input
-                  type="email"
-                  required // set required attribute to use brower's HTML5 input validation
-                  width={1}
-                />
-              </Field>
-            </Box>
-          </Flex>
-          <Flex mx={-3} flexWrap={"wrap"}>
-            <Box width={[1, 1, 1/2]} px={3}>
-              <Field label="Plain Input"  width={1}>
-                <Input
-                  type="text"
-                  required // set required attribute to use brower's HTML5 input validation
-                  width={1}
-                />
-              </Field>
-            </Box>
-            <Box width={[1, 1, 1/2]} px={3}>
-              <Field label="Form Email Input"  width={1}>
-                <Form.Input
-                  type="email"
-                  required // set required attribute to use brower's HTML5 input validation
-                  width={1}
-                />
-              </Field>
-            </Box>
-          </Flex>
-        </Form>
+          <Form>
+            <Flex mx={-3} flexWrap={"wrap"}>
+              <Box width={[1, 1, 1 / 2]} px={3}>
+                <Field label="Plain Input" width={1}>
+                  <Input
+                    type="text"
+                    required // set required attribute to use brower's HTML5 input validation
+                    width={1}
+                  />
+                </Field>
+              </Box>
+              <Box width={[1, 1, 1 / 2]} px={3}>
+                <Field label="Form Email Input" width={1}>
+                  <Form.Input
+                    type="email"
+                    required // set required attribute to use brower's HTML5 input validation
+                    width={1}
+                  />
+                </Field>
+              </Box>
+            </Flex>
+            <Flex mx={-3} flexWrap={"wrap"}>
+              <Box width={[1, 1, 1 / 2]} px={3}>
+                <Field label="Plain Input" width={1}>
+                  <Input
+                    type="text"
+                    required // set required attribute to use brower's HTML5 input validation
+                    width={1}
+                  />
+                </Field>
+              </Box>
+              <Box width={[1, 1, 1 / 2]} px={3}>
+                <Field label="Form Email Input" width={1}>
+                  <Form.Input
+                    type="email"
+                    required // set required attribute to use brower's HTML5 input validation
+                    width={1}
+                  />
+                </Field>
+              </Box>
+            </Flex>
+          </Form>
         </div>
         ); case 4:
+        calculatePremium(contract)
         return (<div>
           <br />
+          {premium ? (
+          <Box>
+          <Text
+            textAlign={["center", "left"]}
+            fontWeight={"600"}
+            fontSize={1}
+            lineHeight={"1.25em"}
+          >
+            Premium cost: {premium}
+          </Text>
+        </Box>
+          ) :         <Flex
+          p={3}
+          borderBottom={"1px solid gray"}
+          borderColor={"moon-gray"}
+          alignItems={"center"}
+          flexDirection={["column", "row"]}
+        >
+          <Box
+            position={"relative"}
+            height={"2em"}
+            width={"2em"}
+            mr={[0, 3]}
+            mb={[3, 0]}
+          >
+            <Box position={"absolute"} top={"0"} left={"0"}>
+              <Loader size={"2em"} />
+            </Box>
+          </Box>
+          <Box>
+            <Text
+              textAlign={["center", "left"]}
+              fontWeight={"600"}
+              fontSize={1}
+              lineHeight={"1.25em"}
+            >
+              Calculating Premium
+            </Text>
+          </Box>
+        </Flex>
+            
+            }
           <EthAddress address="0x9505C8Fc1aD98b0aC651b91245d02D055fEc8E49" />
           <br />
           <MetaMaskButton.Outline>Pay with MetaMask</MetaMaskButton.Outline>
@@ -205,6 +274,16 @@ function  Policy({ accounts }, context) {
     }
   }
 
+  async function calculatePremium(contract) {
+    if (!premium) {
+      const data = await contract.methods.calculatePremium(cargoDetails).call();
+      setPremium(data);
+    }
+  }
+
+  const getCordinateFormat = (location) => {
+    return location.lat + " , " + location.long;
+  }
   const isStepOptional = (step) => {
     return step === -1;
   };
@@ -228,6 +307,54 @@ function  Policy({ accounts }, context) {
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
   };
 
+  const onMapClick = (e) => {
+    const lat = e.latLng[0];
+    const long = e.latLng[1];
+    const loc = locations;
+    var data = {
+      lat: lat,
+      long: long
+    };
+    if (mapFirstClick) {
+      if (locations.length === 0) {
+        loc.push(data);
+      } else {
+        loc[0] = data;
+      }
+    } else {
+      if (locations.length === 1) {
+        loc.push(data);
+      } else {
+        loc[1] = data;
+      }
+    }
+    setMapFirstClick(!mapFirstClick);
+    setLocations(loc);
+  }
+
+  const isNextDisabled = () => {
+    switch (activeStep) {
+      case 0:
+        if (startDate === undefined || endDate === undefined) {
+          return true; //todo make true
+        }
+        return false;
+      case 1:
+        if (locations.length == 2) {
+          return false;
+        }
+        return true; //todo make true
+      case 2:
+        return false;
+      case 3:
+        return false;
+      case 4:
+        return false;
+      default:
+        return true;
+    }
+  }
+
   const handleSkip = () => {
     if (!isStepOptional(activeStep)) {
       // You probably want to guard against something like this,
@@ -245,6 +372,8 @@ function  Policy({ accounts }, context) {
 
   const handleReset = () => {
     setActiveStep(0);
+    setEndDate(undefined);
+    setStartDate(undefined);
   };
 
   return (
@@ -291,6 +420,7 @@ function  Policy({ accounts }, context) {
                   variant="contained"
                   color="primary"
                   onClick={handleNext}
+                  disabled={isNextDisabled()}
                 >
                   {activeStep === steps.length - 1 ? 'Finish' : 'Next'}
                 </StyledButton>
