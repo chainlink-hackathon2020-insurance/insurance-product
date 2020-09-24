@@ -11,7 +11,7 @@ module.exports = async (deployer, network, [defaultAccount]) => {
     try {
       await deployer.deploy(LinkToken, { from: defaultAccount })
       await deployer.deploy(Oracle, LinkToken.address, { from: defaultAccount })
-      await deployer.deploy(MarineInsurance, LinkToken.address)
+      await deployer.deploy(MarineInsurance, LinkToken.address, Oracle.address, web3.utils.toHex("jobId"), web3.utils.toWei('1', 'ether'))
     } catch (err) {
       console.error(err)
     }

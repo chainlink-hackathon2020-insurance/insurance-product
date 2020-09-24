@@ -12,12 +12,6 @@ contract MarineInsurance is ChainlinkClient, Ownable{
         COMPLETED
     }
 
-    struct OracleData {
-        bytes32 jobId;
-        uint256 fee;
-        bool active;
-    }
-
     struct Coordinate {
         string lat;
         string lng;
@@ -39,7 +33,7 @@ contract MarineInsurance is ChainlinkClient, Ownable{
     struct TrackingData {
         //TODO: Should this be updated? What value should be passed here?
         Coordinate location;
-        int256 currentWaterlevel;
+        int256 currentWaterLevel;
         bytes32 currentRequestId;
         RequestStatus requestStatus;
     }
@@ -50,34 +44,46 @@ contract MarineInsurance is ChainlinkClient, Ownable{
         TrackingData trackingData;
     }
 
+    event InsurancePolicyCreation (
+        address indexed owner,
+        address indexed beneficiary,
+        uint256 indexed insuranceIdentifier
+    );
+
+    event ClaimPayout (
+        address indexed beneficiary,
+        uint256 indexed insuranceIdentifier,
+        uint256 amountPaid
+    );
+
     InsurancePolicy[] insurancePolicies;
     mapping(address => uint[]) insurancePolicyOwnership;
     mapping(bytes32 => uint) requestToInsurancePolicyId;
-    mapping(address => OracleData) waterLevelOracles;
-    uint waterLevelOracleCount = 0;
 
-    //TODO: Use multiple oracles
-    address constant oracle = 0x121927a28b6C5a77064012d8dC0Df3Af81d175de;
-    bytes32 constant jobId = "818de5fad1514b3cb5f356c8200e265d";
-    uint256 constant fee = 0.1 * 10 ** 18; // 0.1 LINK
+    address oracle;
+    bytes32 jobId;
+    uint256 fee;
 
-    constructor(address _link) public {
-        if (_link == address(0)) {
+    constructor(address _linkTokenAddress, address _oracleAddress, bytes32 _jobId, uint256 _fee) public {
+        oracle = _oracleAddress;
+        jobId = _jobId;
+        fee = _fee;
+        if (_linkTokenAddress == address(0)) {
             setPublicChainlinkToken();
         } else {
-            setChainlinkToken(_link);
+            setChainlinkToken(_linkTokenAddress);
         }
     }
 
     //Calculate premium
     function calculatePremium(ShipData memory _shipData) public view returns (uint256){
         //TODO: Implement premium calculation formula
-        return 1;
+        return 100;
     }
 
     function calculateDailyClaimPayouts(ShipData memory _shipData) public view returns(uint256) {
         //TODO: Implement payout calculation forumula
-        return 1;
+        return 100;
     }
 
 
@@ -96,7 +102,7 @@ contract MarineInsurance is ChainlinkClient, Ownable{
 
         TrackingData memory initialTrackingData = TrackingData({
         location: _location,
-        currentWaterlevel: -9999,
+        currentWaterLevel: -9999,
         currentRequestId: "0x0",
         requestStatus : RequestStatus.CREATED
         });
@@ -120,7 +126,7 @@ contract MarineInsurance is ChainlinkClient, Ownable{
         insurancePolicies.push(policy);
         uint256 identifier = insurancePolicies.length - 1;
         insurancePolicyOwnership[msg.sender].push(identifier);
-        //TODO: Emit event that policy has been registered
+        emit InsurancePolicyCreation(msg.sender, beneficiary, identifier);
         return identifier;
     }
 
@@ -136,7 +142,7 @@ contract MarineInsurance is ChainlinkClient, Ownable{
     //Receive request of water level
     function receiveWaterLevel(bytes32 _requestId, int256 _level) public recordChainlinkFulfillment(_requestId){
         InsurancePolicy storage insurancePolicy = insurancePolicies[requestToInsurancePolicyId[_requestId]];
-        insurancePolicy.trackingData.currentWaterlevel = _level;
+        insurancePolicy.trackingData.currentWaterLevel = _level;
         insurancePolicy.trackingData.requestStatus = RequestStatus.COMPLETED;
         delete requestToInsurancePolicyId[_requestId];
         if(isPolicyActive(insurancePolicy)){
@@ -148,7 +154,9 @@ contract MarineInsurance is ChainlinkClient, Ownable{
             else {
                 uint amountToPayToday = insurancePolicy.coverageData.dailyClaimAmount;
                 insurancePolicy.coverageData.beneficiary.transfer(amountToPayToday);
-                //TODO: Emit event for frontend
+                emit ClaimPayout(insurancePolicy.coverageData.beneficiary,
+                                 requestToInsurancePolicyId[_requestId],
+                                 amountToPayToday);
             }
         }
     }
@@ -166,8 +174,6 @@ contract MarineInsurance is ChainlinkClient, Ownable{
 
     //Create request to get water levels of coordinate
     function requestWaterLevels() public onlyOwner{
-        //TODO: Use multiple oracles
-
         for(uint i = 0; i < insurancePolicies.length; i++) {
             InsurancePolicy storage insurancePolicy = insurancePolicies[i];
             if(isPolicyActive(insurancePolicy)){
@@ -181,13 +187,14 @@ contract MarineInsurance is ChainlinkClient, Ownable{
         }
     }
 
-    function addOracle(address _oracle, bytes32 _jobId, uint256 _fee) public onlyOwner{
-        OracleData memory oracleData = OracleData(_jobId, _fee, true);
-        waterLevelOracles[_oracle] = oracleData;
+    function setOracleData(address _oracleAddress, bytes32 _jobId, uint256 _fee) public onlyOwner{
+        oracle = _oracleAddress;
+        jobId = _jobId;
+        fee = _fee;
     }
 
-    function removeOracle(address _oracle) public onlyOwner{
-        delete waterLevelOracles[_oracle];
+    function getOracleAddress() public view onlyOwner returns (address){
+        return oracle;
     }
 
 
