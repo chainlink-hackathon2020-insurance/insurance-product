@@ -4,7 +4,7 @@ import ship from "./../../images/ship.svg";
 import { Card, Box, Button, Flex, Image, Heading } from "rimble-ui";
 import { Icon } from '@rimble/icons';
 
-function Home({ accounts, contract }) {
+function Home({ accounts}, context) {
     return (
         <div className="pure-u-1-1">
             <Card width={"auto"} maxWidth={"100%"} mx={"auto"} my={5} p={0}>
@@ -59,5 +59,8 @@ function Home({ accounts, contract }) {
     );
 }
 
+Home.contextTypes = {
+    drizzle: PropTypes.object
+  };
 
 export default Home

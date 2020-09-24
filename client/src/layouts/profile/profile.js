@@ -8,10 +8,10 @@ import Typography from '@material-ui/core/Typography';
 import { Button } from "rimble-ui";
 import { ToastMessage } from 'rimble-ui';
 
-function Profile({ accounts, address, contract }) {
+function Profile({ address }, context) {
     const [expanded, setExpanded] = useState('panel1');
     const [policies, setPolicies] = useState([]);
-    const c = contract
+    const contract = context.drizzle.contracts.MarineInsurance;
 
     const handleChange = (panel) => (event, newExpanded) => {
         setExpanded(newExpanded ? panel : false);
@@ -25,7 +25,7 @@ function Profile({ accounts, address, contract }) {
     }, [address]);
 
     async function getPolicies() {
-        const data = await c.methods.getInsurancePolicies(address).call();
+        const data = await contract.methods.getInsurancePolicies(address).call();
         setPolicies(data);
     }
 
@@ -107,5 +107,8 @@ function Profile({ accounts, address, contract }) {
     );
 }
 
+Profile.contextTypes = {
+    drizzle: PropTypes.object
+};
 
 export default Profile
