@@ -31,7 +31,6 @@ contract MarineInsurance is ChainlinkClient, Ownable{
     }
 
     struct TrackingData {
-        //TODO: Should this be updated? What value should be passed here?
         Coordinate location;
         int256 currentWaterLevel;
         bytes32 currentRequestId;
@@ -55,7 +54,7 @@ contract MarineInsurance is ChainlinkClient, Ownable{
         uint256 amountPaid
     );
 
-    InsurancePolicy[] insurancePolicies;
+    InsurancePolicy[] public insurancePolicies;
     mapping(address => uint[]) insurancePolicyOwnership;
     mapping(bytes32 => uint) requestToInsurancePolicyId;
 
