@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const { oracle } = require('@chainlink/test-helpers')
 const { expectRevert, time } = require('@openzeppelin/test-helpers')
-
+const { addDays, substractDays } = require('../utils');
 contract('MarineInsurance', accounts => {
   const { LinkToken } = require('@chainlink/contracts/truffle/v0.4/LinkToken')
   const { Oracle } = require('@chainlink/contracts/truffle/v0.6/Oracle')
@@ -58,21 +58,8 @@ contract('MarineInsurance', accounts => {
             {lat: "35.514706", lng: "-89.912506"},
             Math.floor(Date.now() / 1000),
             Math.floor(addDays(Date.now(), 10)   / 1000),
-            stranger
+            {from: stranger}
           ), "You need to pay the policy premium"
-      )
-    })
-
-    it('should not create insurance policy if burn address provided', async () => {
-      await expectRevert(
-          insurance.registerInsurancePolicy(
-              {shipmentValue: 100},
-              {lat: "35.514706", lng: "-89.912506"},
-              Math.floor(Date.now() / 1000),
-              Math.floor(addDays(Date.now(), 10)   / 1000),
-              "0x0000000000000000000000000000000000000000",
-              {from: stranger, value: 100}
-          ), "Beneficiary should not be burning address"
       )
     })
 
@@ -82,7 +69,6 @@ contract('MarineInsurance', accounts => {
           {lat: "35.514706", lng: "-89.912506"},
           Math.floor(Date.now() / 1000),
           Math.floor(addDays(Date.now(), 10)  / 1000),
-          stranger,
           {from: stranger, value: 100}
       )
 
@@ -101,8 +87,23 @@ contract('MarineInsurance', accounts => {
 
     beforeEach(async () => {
       await link.transfer(insurance.address, web3.utils.toWei('1', 'ether'), {
-        from: defaultAccount,
+        from: defaultAccount
       })
+    })
+
+    it('should not request water level for expired insurance policies', async () => {
+      await insurance.registerInsurancePolicy(
+          {shipmentValue: 100},
+          {lat: "35.514706", lng: "-89.912506"},
+          Math.floor(Date.now() / 1000),
+          Math.floor(substractDays(Date.now(), 10)  / 1000),
+          {from: stranger, value: 100}
+      )
+      const tx = await insurance.requestWaterLevels(
+          { from: admin },
+      )
+      assert(tx.receipt.rawLogs[3] === undefined);
+
     })
 
     it('should request and receive water levels of valid insurances', async () => {
@@ -111,7 +112,6 @@ contract('MarineInsurance', accounts => {
           {lat: "35.514706", lng: "-89.912506"},
           Math.floor(Date.now() / 1000),
           Math.floor(addDays(Date.now(), 10)  / 1000),
-          stranger,
           {from: stranger, value: 100}
       )
 
@@ -123,7 +123,7 @@ contract('MarineInsurance', accounts => {
           ...oracle.convertFufillParams(request, response, {
             from: oracleNode,
             gas: 500000,
-          }),
+          })
       )
 
       const insurancePolicies = await insurance.getInsurancePolicies(stranger)
@@ -134,9 +134,3 @@ contract('MarineInsurance', accounts => {
 
   })
 })
-
-function addDays(date, days) {
-  var result = new Date(date);
-  result.setDate(result.getDate() + days);
-  return result;
-}

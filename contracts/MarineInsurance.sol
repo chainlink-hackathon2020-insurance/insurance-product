@@ -45,7 +45,6 @@ contract MarineInsurance is ChainlinkClient, Ownable{
     }
 
     event InsurancePolicyCreation (
-        address indexed owner,
         address indexed beneficiary,
         uint256 indexed insuranceIdentifier
     );
@@ -91,42 +90,40 @@ contract MarineInsurance is ChainlinkClient, Ownable{
     function registerInsurancePolicy(ShipData memory _shipData,
         Coordinate memory _location,
         uint256 _startDate,
-        uint256 _endDate,
-        address payable beneficiary)
+        uint256 _endDate)
     public payable returns(uint256) {
         uint256 premium = calculatePremium(_shipData);
         //TODO: Add validation for _shipData
         require(premium == msg.value, "You need to pay the policy premium");
-        require(beneficiary != address(0), "Beneficiary should not be burning address");
         uint256 claimPaymentAmount = calculateDailyClaimPayouts(_shipData);
 
         TrackingData memory initialTrackingData = TrackingData({
-        location: _location,
-        currentWaterLevel: -9999,
-        currentRequestId: "0x0",
-        requestStatus : RequestStatus.CREATED
+            location: _location,
+            currentWaterLevel: -9999,
+            currentRequestId: "0x0",
+            requestStatus : RequestStatus.CREATED
         });
 
         CoverageData memory coverageData = CoverageData({
-        startDate: _startDate,
-        endDate: _endDate,
-        dailyClaimAmount: claimPaymentAmount,
-        //TODO: Are these constant?
-        waterLevelMin: 0,
-        waterLevelMax: 200,
-        beneficiary: beneficiary
+            startDate: _startDate,
+            endDate: _endDate,
+            dailyClaimAmount: claimPaymentAmount,
+            //TODO: Are these constant?
+            waterLevelMin: 0,
+            waterLevelMax: 200,
+            beneficiary: msg.sender
         });
 
         InsurancePolicy memory policy = InsurancePolicy({
-        coverageData: coverageData,
-        shipData: _shipData,
-        trackingData: initialTrackingData
+            coverageData: coverageData,
+            shipData: _shipData,
+            trackingData: initialTrackingData
         });
 
         insurancePolicies.push(policy);
         uint256 identifier = insurancePolicies.length - 1;
         insurancePolicyOwnership[msg.sender].push(identifier);
-        emit InsurancePolicyCreation(msg.sender, beneficiary, identifier);
+        emit InsurancePolicyCreation(msg.sender, identifier);
         return identifier;
     }
 
@@ -145,19 +142,17 @@ contract MarineInsurance is ChainlinkClient, Ownable{
         insurancePolicy.trackingData.currentWaterLevel = _level;
         insurancePolicy.trackingData.requestStatus = RequestStatus.COMPLETED;
         delete requestToInsurancePolicyId[_requestId];
-        if(isPolicyActive(insurancePolicy)){
-            if(_level > insurancePolicy.coverageData.waterLevelMin &&
-                _level < insurancePolicy.coverageData.waterLevelMax){
-                return;
-            }
-            //Create and pay claim
-            else {
-                uint amountToPayToday = insurancePolicy.coverageData.dailyClaimAmount;
-                insurancePolicy.coverageData.beneficiary.transfer(amountToPayToday);
-                emit ClaimPayout(insurancePolicy.coverageData.beneficiary,
-                                 requestToInsurancePolicyId[_requestId],
-                                 amountToPayToday);
-            }
+        if (_level > insurancePolicy.coverageData.waterLevelMin &&
+            _level < insurancePolicy.coverageData.waterLevelMax) {
+            return;
+        }
+        //Create and pay claim
+        else {
+            uint amountToPayToday = insurancePolicy.coverageData.dailyClaimAmount;
+            insurancePolicy.coverageData.beneficiary.transfer(amountToPayToday);
+            emit ClaimPayout(insurancePolicy.coverageData.beneficiary,
+                requestToInsurancePolicyId[_requestId],
+                amountToPayToday);
         }
     }
 
