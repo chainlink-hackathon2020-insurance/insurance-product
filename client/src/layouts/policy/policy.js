@@ -3,17 +3,18 @@ import PropTypes from 'prop-types'
 import Stepper from '@material-ui/core/Stepper';
 import Step from '@material-ui/core/Step';
 import StepLabel from '@material-ui/core/StepLabel';
-import Button from '@material-ui/core/Button';
+import ButtonMat from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import styled from "styled-components";
 import { EthAddress, Link } from "rimble-ui";
 import { MetaMaskButton } from 'rimble-ui';
-import { Field, Input, Form, Flex, Box, Heading, Select, Tooltip, Modal, Card, Icon, Text, Loader } from 'rimble-ui';
+import { Field, Input, Form, Flex, Box, Heading, Select, Tooltip, Modal, Card, Icon, Text, Loader, Button, Image } from 'rimble-ui';
 import Map from 'pigeon-maps'
 import Marker from 'pigeon-marker'
 import Overlay from 'pigeon-overlay'
+import MetaMaskIcon from "./../../images/icon-metamask.svg"
 
-const StyledButton = styled(Button)`
+const StyledButton = styled(ButtonMat)`
     margin-right: 1rem;
 `;
 
@@ -35,6 +36,8 @@ function Policy({ accounts }, context) {
   const [locations, setLocations] = useState([]);
   const [mapFirstClick, setMapFirstClick] = useState(true);
   const [premium, setPremium] = useState(undefined);
+  const [address, setAddress] = useState(accounts[0]);
+  const [paymentComplete, setPaymentComplete] = useState(undefined);
   const [mapProperties, setMapProperties] = useState({
     center: [50.1102, 3.1506],
     zoom: 4,
@@ -44,7 +47,9 @@ function Policy({ accounts }, context) {
   const [cargoDetails, setCargoDetails] = useState({
     shipmentValue: 0
   })
+  const [web3, setWeb3] = useState(context.drizzle.web3);
   const contract = context.drizzle.contracts.MarineInsurance;
+
   const steps = getSteps();
 
   function getStepContent(step) {
@@ -100,7 +105,7 @@ function Policy({ accounts }, context) {
 
                   >
                     {locations.map((cordinate, i) => (
-                      <Marker anchor={[cordinate.lat, cordinate.long]} payload={1} onClick={({ event, anchor, payload }) => { }} />
+                      <Marker anchor={[cordinate.lat, cordinate.lng]} payload={1} onClick={({ event, anchor, payload }) => { }} />
                     ))
                     }
                   </Map>
@@ -222,51 +227,8 @@ function Policy({ accounts }, context) {
         calculatePremium(contract)
         return (<div>
           <br />
-          {premium ? (
-          <Box>
-          <Text
-            textAlign={["center", "left"]}
-            fontWeight={"600"}
-            fontSize={1}
-            lineHeight={"1.25em"}
-          >
-            Premium cost: {premium}
-          </Text>
-        </Box>
-          ) :         <Flex
-          p={3}
-          borderBottom={"1px solid gray"}
-          borderColor={"moon-gray"}
-          alignItems={"center"}
-          flexDirection={["column", "row"]}
-        >
-          <Box
-            position={"relative"}
-            height={"2em"}
-            width={"2em"}
-            mr={[0, 3]}
-            mb={[3, 0]}
-          >
-            <Box position={"absolute"} top={"0"} left={"0"}>
-              <Loader size={"2em"} />
-            </Box>
-          </Box>
-          <Box>
-            <Text
-              textAlign={["center", "left"]}
-              fontWeight={"600"}
-              fontSize={1}
-              lineHeight={"1.25em"}
-            >
-              Calculating Premium
-            </Text>
-          </Box>
-        </Flex>
-            
-            }
-          <EthAddress address="0x9505C8Fc1aD98b0aC651b91245d02D055fEc8E49" />
           <br />
-          <MetaMaskButton.Outline>Pay with MetaMask</MetaMaskButton.Outline>
+          {confirmationUI()}
         </div>
         );
       default:
@@ -281,8 +243,12 @@ function Policy({ accounts }, context) {
     }
   }
 
+  const getCargoDetails = () => {
+    return cargoDetails.shipmentValue;
+  }
+
   const getCordinateFormat = (location) => {
-    return location.lat + " , " + location.long;
+    return location.lat + " , " + location.lng;
   }
   const isStepOptional = (step) => {
     return step === -1;
@@ -307,13 +273,257 @@ function Policy({ accounts }, context) {
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
   };
 
+  const confirmationUI = () => {
+    return (
+
+      <Card borderRadius={1} p={0}>
+        <Flex
+          justifyContent="space-between"
+          alignItems="center"
+          borderBottom={1}
+          borderColor="near-white"
+          p={[3, 4]}
+          pb={3}
+        >
+          <Image
+            src={MetaMaskIcon}
+            aria-label="MetaMask extension icon"
+            size="50px"
+          />
+          <Heading textAlign="center" as="h1" fontSize={[2, 3]} px={[3, 0]}>
+            Confirm your purchase
+    </Heading>
+          <Link>
+            <Icon name="" color="moon-gray" aria-label="Close" />
+          </Link>
+        </Flex>
+        <Box p={[3, 4]}>
+          <Flex justifyContent={"space-between"} flexDirection={"column"}>
+            <Text textAlign="center">
+              Double check the details here – your purchase can't be refunded.
+      </Text>
+            <Flex
+              alignItems={"stretch"}
+              flexDirection={"column"}
+              borderRadius={2}
+              borderColor={"moon-gray"}
+              borderWidth={1}
+              borderStyle={"solid"}
+              overflow={"hidden"}
+              my={[3, 4]}
+            >
+              <Box bg={"primary"} px={3} py={2}>
+                <Text color={"white"}>Policy</Text>
+              </Box>
+              <Flex
+                p={3}
+                borderBottom={"1px solid gray"}
+                borderColor={"moon-gray"}
+                alignItems={"center"}
+                flexDirection={["column", "row"]}
+              >
+                <Box
+                  position={"relative"}
+                  height={"2em"}
+                  width={"2em"}
+                  mr={[0, 3]}
+                  mb={[3, 0]}
+                >
+                  <Box position={"absolute"} top={"0"} left={"0"}>
+                    <Loader size={"2em"} />
+                  </Box>
+                </Box>
+                <Box>
+                  <Text
+                    textAlign={["center", "left"]}
+                    fontWeight={"600"}
+                    fontSize={1}
+                    lineHeight={"1.25em"}
+                  >
+                    Waiting for confirmation...
+            </Text>
+                </Box>
+              </Flex>
+              <Flex
+                justifyContent={"space-between"}
+                bg="light-gray"
+                p={[2, 3]}
+                borderBottom={"1px solid gray"}
+                borderColor={"moon-gray"}
+                flexDirection={["column", "row"]}
+              >
+                <Text
+                  textAlign={["center", "left"]}
+                  color="near-black"
+                  fontWeight="bold"
+                >
+                  Policy Details
+          </Text>
+
+                <Box>
+                  <Text fontWeight="bold">Duration: {startDate} to {endDate}</Text>
+                  <Text fontWeight="bold">Voyage: {getCordinateFormat(locations[0])} to {getCordinateFormat(locations[1])}</Text>
+                  <Text fontWeight="bold">Cargo: {getCargoDetails()}</Text>
+                </Box>
+              </Flex>
+              <Flex
+                justifyContent={"space-between"}
+                bg="light-gray"
+                p={[2, 3]}
+                borderBottom={"1px solid gray"}
+                borderColor={"moon-gray"}
+                flexDirection={["column", "row"]}
+              >
+                <Text
+                  textAlign={["center", "left"]}
+                  color="near-black"
+                  fontWeight="bold"
+                >
+                  Your account
+          </Text>
+                <Link
+                  href={"https://rinkeby.etherscan.io/address/" + address}
+                  target={"_blank"}
+                >
+                  <Tooltip message={address}>
+                    <Flex
+                      justifyContent={["center", "auto"]}
+                      alignItems={"center"}
+                      flexDirection="row-reverse"
+                    >
+                      <Text fontWeight="bold">{address.slice(0, 6)}...{address.slice(address.length - 4)}</Text>
+                      <Flex
+                        mr={2}
+                        p={1}
+                        borderRadius={"50%"}
+                        bg={"primary-extra-light"}
+                        height={"2em"}
+                        width={"2em"}
+                        alignItems="center"
+                        justifyContent="center"
+                      >
+                        <Icon color={"primary"} name="RemoveRedEye" size={"1em"} />
+                      </Flex>
+                    </Flex>
+                  </Tooltip>
+                </Link>
+              </Flex>
+              <Flex
+                justifyContent={"space-between"}
+                bg="near-white"
+                py={[2, 3]}
+                px={3}
+                alignItems={"center"}
+                borderBottom={"1px solid gray"}
+                borderColor={"moon-gray"}
+                flexDirection={["column", "row"]}
+              >
+                <Flex alignItems={"center"}>
+                  <Text
+                    textAlign={["center", "left"]}
+                    color="near-black"
+                    fontWeight="bold"
+                  >
+                    Premium Price
+            </Text>
+                  <Tooltip
+                    message="Calculated based on your duration, voyage location and shipment value."
+                    position="top"
+                  >
+                    <Icon
+                      ml={1}
+                      name={"InfoOutline"}
+                      size={"14px"}
+                      color={"primary"}
+                    />
+                  </Tooltip>
+
+                </Flex>
+                <Flex
+                  alignItems={["center", "flex-end"]}
+                  flexDirection={["row", "column"]}
+                >
+                  {premium ? (
+                    <Box>
+                      <Text
+                        textAlign={["center", "left"]}
+                        fontWeight={"600"}
+                        fontSize={1}
+                        lineHeight={"1.25em"}
+                      >
+                        {web3.utils.fromWei(premium, 'ether')} ETH
+                      </Text>
+                    </Box>
+                  ) : <Flex
+                    p={3}
+                    alignItems={"center"}
+                    flexDirection={["column", "row"]}
+                  >
+                      <Box
+                        position={"relative"}
+                        height={"2em"}
+                        width={"2em"}
+                        mr={[0, 3]}
+                        mb={[3, 0]}
+                      >
+                        <Box position={"absolute"} top={"0"} left={"0"}>
+                          <Loader size={"2em"} />
+                        </Box>
+                      </Box>
+                      <Box>
+                        <Text
+                          textAlign={["center", "left"]}
+                          fontWeight={"600"}
+                          fontSize={1}
+                        >
+                          Calculating Premium
+            </Text>
+                      </Box>
+                    </Flex>
+
+                  }
+                </Flex>
+              </Flex>
+            </Flex>
+            <Button.Outline onClick={makePayment} width="30%">Make Payment</Button.Outline>
+          </Flex>
+        </Box>
+      </Card>
+    );
+  }
+
+  async function makePayment() {
+    if (!paymentComplete) {
+      debugger
+       await contract.methods.registerInsurancePolicy(
+        cargoDetails,
+        locations[0],
+        getTimeForSmartContract(startDate),
+        getTimeForSmartContract(endDate),
+        address
+      ).send({value : premium})
+      .on('transactionHash', function(hash){
+        debugger
+      })
+      .on('confirmation', function(confirmationNumber, receipt){
+        debugger
+      })
+      .on('receipt', function(receipt){
+        debugger
+      })
+      .on('error', function(error, receipt) { // If the transaction was rejected by the network with a receipt, the second parameter will be the receipt.
+        debugger
+      });
+    }
+  }
+
   const onMapClick = (e) => {
     const lat = e.latLng[0];
     const long = e.latLng[1];
     const loc = locations;
     var data = {
       lat: lat,
-      long: long
+      lng: long
     };
     if (mapFirstClick) {
       if (locations.length === 0) {
@@ -374,7 +584,14 @@ function Policy({ accounts }, context) {
     setActiveStep(0);
     setEndDate(undefined);
     setStartDate(undefined);
+    setLocations([]);
+    setPremium(undefined);
+    setMapFirstClick(false);
   };
+
+  const getTimeForSmartContract = (t) => {
+    return Math.floor(new Date(t).getTime() / 1000);
+  }
 
   return (
     <div className="pure-u-1-1">
