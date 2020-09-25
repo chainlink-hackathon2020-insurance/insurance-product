@@ -490,7 +490,7 @@ function Policy({ accounts }, context) {
     if (!paymentComplete) {
       await contract.methods.registerInsurancePolicy(
         cargoDetails,
-        locations[0],
+        getLocationForSmartContract(locations[0]),
         getTimeForSmartContract(startDate),
         getTimeForSmartContract(endDate),
         address
@@ -566,6 +566,13 @@ function Policy({ accounts }, context) {
 
   const getTimeForSmartContract = (t) => {
     return Math.floor(new Date(t).getTime() / 1000);
+  }
+
+  const getLocationForSmartContract = (l) => {
+    return {
+      lat: l.lat.toString(),
+      lng: l.lng.toString()
+    }
   }
 
   return (
