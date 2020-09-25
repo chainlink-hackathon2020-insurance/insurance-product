@@ -7,9 +7,9 @@ import "@chainlink/contracts/src/v0.6/vendor/Ownable.sol";
 contract MarineInsurance is ChainlinkClient, Ownable{
 
     enum RequestStatus {
-        CREATED,
-        INITIATED,
-        COMPLETED
+        CREATED, // @dev The user created the policy and the water level hasn't been measured.
+        INITIATED, // @dev The smart contract has requested the water level for the policy. Water levels are measured every 24 hours.
+        COMPLETED //@dev The smart contract has received the water level value.
     }
 
     struct Coordinate {
@@ -54,18 +54,30 @@ contract MarineInsurance is ChainlinkClient, Ownable{
         uint256 amountPaid
     );
 
+    event InsurancePolicyExpired (
+        address indexed beneficiary,
+        uint256 indexed insuranceIdentifier,
+        uint256 dateExpired
+    );
+
     InsurancePolicy[] public insurancePolicies;
     mapping(address => uint[]) insurancePolicyOwnership;
     mapping(bytes32 => uint) requestToInsurancePolicyId;
 
-    address oracle;
-    bytes32 jobId;
-    uint256 fee;
+    //Water level oracle data
+    address waterLevelOracle;
+    bytes32 waterLevelJobId;
+    uint256 waterLevelFee;
+
+    //Water level evaluation period oracle data
+    address waterLevelEvaluationPeriodOracle;
+    bytes32 waterLevelEvaluationPeriodJobId;
+    uint256 waterLevelEvaluationPeriodFee;
 
     constructor(address _linkTokenAddress, address _oracleAddress, bytes32 _jobId, uint256 _fee) public {
-        oracle = _oracleAddress;
-        jobId = _jobId;
-        fee = _fee;
+        waterLevelOracle = _oracleAddress;
+        waterLevelJobId = _jobId;
+        waterLevelFee = _fee;
         if (_linkTokenAddress == address(0)) {
             setPublicChainlinkToken();
         } else {
@@ -134,7 +146,20 @@ contract MarineInsurance is ChainlinkClient, Ownable{
         return result;
     }
 
+
+
+    function isPolicyActive(uint256 _identifier) public view returns(bool){
+        InsurancePolicy storage policy = insurancePolicies[_identifier];
+        return now >= policy.coverageData.startDate && now <= policy.coverageData.endDate;
+    }
+
+    function getChainlinkToken() public view returns (address) {
+        return chainlinkTokenAddress();
+    }
+
+    //oracle only functions
     //Receive request of water level
+    //@dev recordChainlinkFulfillment modifier prevents this function to be called by anything else other than the oracle.
     function receiveWaterLevel(bytes32 _requestId, int256 _level) public recordChainlinkFulfillment(_requestId){
         InsurancePolicy storage insurancePolicy = insurancePolicies[requestToInsurancePolicyId[_requestId]];
         insurancePolicy.trackingData.currentWaterLevel = _level;
@@ -152,48 +177,68 @@ contract MarineInsurance is ChainlinkClient, Ownable{
                 requestToInsurancePolicyId[_requestId],
                 amountToPayToday);
         }
+        if(!isPolicyActive(insurancePolicy)){
+            emit InsurancePolicyExpired(insurancePolicy.coverageData.beneficiary,
+                requestToInsurancePolicyId[_requestId], now);
+        }
+    }
+
+    function automatedWaterEvaluationLevelReceiver(bytes32 _requestId) public recordChainlinkFulfillment(_requestId) {
+        requestWaterLevels();
+    }
+
+    //onlyOwner functions
+
+    //Create request to get water levels of coordinate
+    function requestWaterLevelsManually() public onlyOwner {
+        requestWaterLevels();
+    }
+
+    function setWaterLevelOracleData(address _oracleAddress, bytes32 _jobId, uint256 _fee) public onlyOwner{
+        waterLevelOracle = _oracleAddress;
+        waterLevelJobId = _jobId;
+        waterLevelFee = _fee;
+    }
+
+    function getWaterLevelOracleAddress() public view onlyOwner returns (address){
+        return waterLevelOracle;
+    }
+
+    function setWaterLevelEvaluationPeriodOracle(address _oracleAddress, bytes32 _jobId, uint256 _fee) public onlyOwner{
+        waterLevelEvaluationPeriodOracle = _oracleAddress;
+        waterLevelEvaluationPeriodJobId = _jobId;
+        waterLevelEvaluationPeriodFee = _fee;
+    }
+
+    function getWaterLevelEvaluationPeriodOracleAddress() public view onlyOwner returns (address) {
+        return waterLevelOracle;
+    }
+
+    function startWaterLevelEvaluationRequestPeriod(uint256 _seconds) public onlyOwner {
+        Chainlink.Request memory req = buildChainlinkRequest(waterLevelEvaluationPeriodJobId, address(this),
+            this.automatedWaterEvaluationLevelReceiver.selector);
+        req.addUint("until", now + _seconds);
+        sendChainlinkRequestTo(waterLevelEvaluationPeriodOracle, req, waterLevelEvaluationPeriodFee);
+    }
+
+    //private functions
+
+    function requestWaterLevels() private {
+        for(uint i = 0; i < insurancePolicies.length; i++) {
+            InsurancePolicy storage insurancePolicy = insurancePolicies[i];
+            if(isPolicyActive(insurancePolicy)){
+                insurancePolicy.trackingData.requestStatus = RequestStatus.INITIATED;
+                Chainlink.Request memory request = buildChainlinkRequest(waterLevelJobId, address(this), this.receiveWaterLevel.selector);
+                request.add("lat", insurancePolicy.trackingData.location.lat);
+                request.add("lng", insurancePolicy.trackingData.location.lng);
+                bytes32 requestId = sendChainlinkRequestTo(waterLevelOracle, request, waterLevelFee);
+                requestToInsurancePolicyId[requestId] = i;
+            }
+        }
     }
 
     function isPolicyActive(InsurancePolicy memory _policy) private view returns(bool){
         return now >= _policy.coverageData.startDate
         && now <= _policy.coverageData.endDate;
     }
-
-    function isPolicyActive(uint256 _identifier) public view returns(bool){
-        InsurancePolicy storage policy = insurancePolicies[_identifier];
-        return now >= policy.coverageData.startDate && now <= policy.coverageData.endDate;
-    }
-
-    function getChainlinkToken() public view returns (address) {
-        return chainlinkTokenAddress();
-    }
-
-    //onlyOwner functions
-
-    //Create request to get water levels of coordinate
-    function requestWaterLevels() public onlyOwner{
-        for(uint i = 0; i < insurancePolicies.length; i++) {
-            InsurancePolicy storage insurancePolicy = insurancePolicies[i];
-            if(isPolicyActive(insurancePolicy)){
-                insurancePolicy.trackingData.requestStatus = RequestStatus.INITIATED;
-                Chainlink.Request memory request = buildChainlinkRequest(jobId, address(this), this.receiveWaterLevel.selector);
-                request.add("lat", insurancePolicy.trackingData.location.lat);
-                request.add("lng", insurancePolicy.trackingData.location.lng);
-                bytes32 requestId = sendChainlinkRequestTo(oracle, request, fee);
-                requestToInsurancePolicyId[requestId] = i;
-            }
-        }
-    }
-
-    function setOracleData(address _oracleAddress, bytes32 _jobId, uint256 _fee) public onlyOwner{
-        oracle = _oracleAddress;
-        jobId = _jobId;
-        fee = _fee;
-    }
-
-    function getOracleAddress() public view onlyOwner returns (address){
-        return oracle;
-    }
-
-
 }
