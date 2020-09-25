@@ -37,10 +37,11 @@ function getStepContent(step) {
     }
 }
 
-function Claims({ accounts, drizzleStatus }) {
+function Claims({ accounts }, context) {
     const [activeStep, setActiveStep] = useState(0);
     const [skipped, setSkipped] = useState(new Set());
     const steps = getSteps();
+    const contract = context.drizzle.contracts.MarineInsurance;
 
     const isStepOptional = (step) => {
         return step === 1;
@@ -140,5 +141,8 @@ function Claims({ accounts, drizzleStatus }) {
     );
 }
 
+Claims.contextTypes = {
+    drizzle: PropTypes.object
+  };
 
 export default Claims

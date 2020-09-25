@@ -24,3 +24,24 @@ h1, h2, h3 {
 .drawer {
   color:red
 }
+
+.fullcontainer {
+  width: 100%;
+}
+
+.box-left{
+  margin-left: 5rem;
+}
+
+.box-left-2{
+  margin-left: 2rem;
+}
+
+
+.box-left-3{
+  margin-left: 3rem;
+}
+
+.box-left-1{
+  margin-left: 1rem;
+}

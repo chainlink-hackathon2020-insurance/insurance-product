@@ -6,13 +6,29 @@ import AccordionSummary from '@material-ui/core/AccordionSummary';
 import AccordionDetails from '@material-ui/core/AccordionDetails';
 import Typography from '@material-ui/core/Typography';
 import { Button } from "rimble-ui";
+import { ToastMessage } from 'rimble-ui';
 
-function Profile({ accounts, drizzleStatus }) {
-    const [expanded, setExpanded] = React.useState('panel1');
+function Profile({ address }, context) {
+    const [expanded, setExpanded] = useState('panel1');
+    const [policies, setPolicies] = useState([]);
+    const contract = context.drizzle.contracts.MarineInsurance;
 
     const handleChange = (panel) => (event, newExpanded) => {
         setExpanded(newExpanded ? panel : false);
     };
+
+
+    useEffect(() => {
+        if (address) {
+            getPolicies();
+        }
+    }, [address]);
+
+    async function getPolicies() {
+        const data = await contract.methods.getInsurancePolicies(address).call();
+        setPolicies(data);
+    }
+
     return (
         <div className="pure-u-1-1">
             <div>
@@ -91,5 +107,8 @@ function Profile({ accounts, drizzleStatus }) {
     );
 }
 
+Profile.contextTypes = {
+    drizzle: PropTypes.object
+};
 
 export default Profile
