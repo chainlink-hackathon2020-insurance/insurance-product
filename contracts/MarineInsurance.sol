@@ -107,9 +107,8 @@ contract MarineInsurance is ChainlinkClient, Ownable{
             startDate: _startDate,
             endDate: _endDate,
             dailyClaimAmount: claimPaymentAmount,
-            //TODO: Are these constant?
-            waterLevelMin: 0,
-            waterLevelMax: 200,
+            waterLevelMin: -0.5,
+            waterLevelMax: 0.5,
             beneficiary: msg.sender
         });
 
