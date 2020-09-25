@@ -26,8 +26,13 @@ function Profile({ address }, context) {
 
     async function getPolicies() {
         const data = await contract.methods.getInsurancePolicies(address).call();
-        setPolicies(data);
+        convertSolidityDataToJS(data)
     }
+    function convertSolidityDataToJS(solidityData) {
+        debugger
+        setPolicies(solidityData);
+    }
+
 
     return (
         <div className="pure-u-1-1">
