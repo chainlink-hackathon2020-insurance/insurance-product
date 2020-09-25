@@ -107,8 +107,8 @@ contract MarineInsurance is ChainlinkClient, Ownable{
             startDate: _startDate,
             endDate: _endDate,
             dailyClaimAmount: claimPaymentAmount,
-            waterLevelMin: -0.5,
-            waterLevelMax: 0.5,
+            waterLevelMin: -50,
+            waterLevelMax: 50,
             beneficiary: msg.sender
         });
 
@@ -157,6 +157,11 @@ contract MarineInsurance is ChainlinkClient, Ownable{
     function isPolicyActive(InsurancePolicy memory _policy) private view returns(bool){
         return now >= _policy.coverageData.startDate
         && now <= _policy.coverageData.endDate;
+    }
+
+    function isPolicyActive(uint256 _identifier) public view returns(bool){
+        InsurancePolicy storage policy = insurancePolicies[_identifier];
+        return now >= policy.coverageData.startDate && now <= policy.coverageData.endDate;
     }
 
     function getChainlinkToken() public view returns (address) {
