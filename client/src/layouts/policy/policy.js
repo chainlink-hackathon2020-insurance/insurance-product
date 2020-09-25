@@ -42,8 +42,9 @@ function Policy({ accounts }, context) {
   const [transaction, setTransaction] = useState(undefined);
   const [address, setAddress] = useState(accounts[0]);
   const [paymentComplete, setPaymentComplete] = useState(undefined);
+  const [claimPayout, setClaimPayout] = useState(undefined);
   const [mapProperties, setMapProperties] = useState({
-    center: [50.1102, 3.1506],
+    center: [43.76165780303581 , -77.23736067237853],
     zoom: 4,
     minZoom: 3,
     maxZoom: 16,
@@ -147,41 +148,13 @@ function Policy({ accounts }, context) {
                   />
                 </Field>
               </Box>
-              <Box width={[1, 1, 1 / 2]} px={3}>
-                <Field label="Form Email Input" width={1}>
-                  <Form.Input
-                    type="email"
-                    required // set required attribute to use brower's HTML5 input validation
-                    width={1}
-                  />
-                </Field>
-              </Box>
-            </Flex>
-            <Flex mx={-3} flexWrap={"wrap"}>
-              <Box width={[1, 1, 1 / 2]} px={3}>
-                <Field label="Plain Input" width={1}>
-                  <Input
-                    type="text"
-                    required // set required attribute to use brower's HTML5 input validation
-                    width={1}
-                  />
-                </Field>
-              </Box>
-              <Box width={[1, 1, 1 / 2]} px={3}>
-                <Field label="Form Email Input" width={1}>
-                  <Form.Input
-                    type="email"
-                    required // set required attribute to use brower's HTML5 input validation
-                    width={1}
-                  />
-                </Field>
-              </Box>
             </Flex>
           </Form>
         </div>
         ); case 3:
+        calculateDailyClaimPayouts(contract)
         return (<div>
-
+          {claimPayout ? (<Text>Your estimated payout is: {claimPayout}</Text>) : <Loader size="40px"/>}
         </div>
         ); case 4:
         calculatePremium(contract)
@@ -200,6 +173,15 @@ function Policy({ accounts }, context) {
     if (!premium) {
       const data = await contract.methods.calculatePremium(cargoDetails).call();
       setPremium(data);
+    }
+  }
+  
+  async function calculateDailyClaimPayouts(contract) {
+    if (!claimPayout) {
+      const data = await contract.methods.calculateDailyClaimPayouts(
+        cargoDetails
+      ).call();
+      setClaimPayout(data);
     }
   }
 
@@ -492,8 +474,7 @@ function Policy({ accounts }, context) {
         cargoDetails,
         getLocationForSmartContract(locations[0]),
         getTimeForSmartContract(startDate),
-        getTimeForSmartContract(endDate),
-        address
+        getTimeForSmartContract(endDate)
       ).send({ value: premium })
         .on('transactionHash', function (hash) {
           setTransaction(hash);
@@ -561,6 +542,7 @@ function Policy({ accounts }, context) {
     setStartDate(undefined);
     setLocations([]);
     setPremium(undefined);
+    setClaimPayout(undefined);
     clearMetamaskTask();
   };
 

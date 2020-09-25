@@ -57,7 +57,7 @@ function SideBar({ window, drizzle }) {
           </ListItem>
         </Link>
         <Link to="/claims">
-          <ListItem selected={getSelected("/claims")} button key={"ClaimProcess"} >
+          <ListItem hidden={true} selected={getSelected("/claims")} button key={"ClaimProcess"} >
             <ListItemIcon><MoneyIcon /></ListItemIcon>
             <ListItemText primary={"Claim Process"} />
           </ListItem>

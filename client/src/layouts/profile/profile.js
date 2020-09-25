@@ -61,7 +61,7 @@ function Profile({ address }, context) {
                     </AccordionSummary>
                     {!loading ? (<AccordionDetails>
                         <Typography>
-                            <Table>
+                           {policies.length > 0 ? (<Table>
                                 <thead>
                                     <tr>
                                         <th>ID</th>
@@ -84,13 +84,13 @@ function Profile({ address }, context) {
                                     ))
                                     }
                                 </tbody>
-                            </Table>
+                            </Table>) : 'No policies have been created yet.'}
                         </Typography>
                     </AccordionDetails>) : <Loader size="40px" className="box-left-30" /> }
                 </Accordion>
                 <Accordion square expanded={expanded === 'panel2'} onChange={handleChange('panel2')}>
                     <AccordionSummary aria-controls="panel2d-content" id="panel2d-header">
-                        <Typography>Collapsible Group Item #2</Typography>
+                        <Typography>Claims</Typography>
                     </AccordionSummary>
                     <AccordionDetails>
                         <Typography>
