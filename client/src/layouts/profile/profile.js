@@ -45,7 +45,7 @@ function Profile({ address, location }, context) {
     async function getPolicies() {
         setLoading(true);
         const data = await contract.methods.getInsurancePolicies(address).call();
-        setPolicies(data)
+        setPolicies(data);
         setLoading(false);
     }
 
