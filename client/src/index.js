@@ -6,7 +6,7 @@ import { DrizzleProvider } from '@drizzle/react-plugin'
 // Layouts
 import App from './App'
 import { LoadingContainer } from '@drizzle/react-components'
-
+import { DrizzleContext } from "@drizzle/react-plugin";
 import { history, store } from './store'
 import drizzleOptions from './drizzleOptions'
 import { Provider } from "react-redux";

@@ -12,7 +12,7 @@ const drizzleOptions = {
     MarineInsurance
   ],
   events: {
-    MarineInsurance: ['InsurancePolicyCreation', 'ClaimPayout']
+    MarineInsurance: ['InsurancePolicyCreation', 'ClaimPayout', 'InsurancePolicyExpired']
   },
   polls: {
     accounts: 1500
