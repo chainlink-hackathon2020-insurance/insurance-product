@@ -81,8 +81,14 @@ contract('MarineInsurance', accounts => {
   })
 
   describe('requestWaterLevels', () => {
-    const expected = 300
-    const response = web3.utils.padLeft(web3.utils.toHex(expected), 64)
+    const expectedNormalLevel = 10
+    const responseNormalLevel =
+        web3.utils.padLeft(web3.utils.toHex(expectedNormalLevel), 64)
+
+    const expectedOutOfRangeLevel = 75
+    const responseOutOfRangeLevel =
+        web3.utils.padLeft(web3.utils.toHex(expectedNormalLevel), 64)
+
     let request
 
     beforeEach(async () => {
@@ -99,7 +105,7 @@ contract('MarineInsurance', accounts => {
           Math.floor(substractDays(Date.now(), 10)  / 1000),
           {from: stranger, value: 100}
       )
-      const tx = await insurance.requestWaterLevels(
+      const tx = await insurance.requestWaterLevelsManually(
           { from: admin },
       )
       assert(tx.receipt.rawLogs[3] === undefined);
@@ -115,12 +121,12 @@ contract('MarineInsurance', accounts => {
           {from: stranger, value: 100}
       )
 
-      const tx = await insurance.requestWaterLevels(
+      const tx = await insurance.requestWaterLevelsManually(
           { from: admin },
       )
       request = oracle.decodeRunRequest(tx.receipt.rawLogs[3])
       await oc.fulfillOracleRequest(
-          ...oracle.convertFufillParams(request, response, {
+          ...oracle.convertFufillParams(request, responseNormalLevel, {
             from: oracleNode,
             gas: 500000,
           })
@@ -128,9 +134,19 @@ contract('MarineInsurance', accounts => {
 
       const insurancePolicies = await insurance.getInsurancePolicies(stranger)
       const insurancePolicy = insurancePolicies[0];
-      assert(insurancePolicy.trackingData.currentWaterLevel === expected.toString())
+      assert(insurancePolicy.trackingData.currentWaterLevel === expectedNormalLevel.toString())
 
     })
 
+    it('should pay claim if water level that day was out of range', async () => {
+      await insurance.registerInsurancePolicy(
+          {shipmentValue: 100},
+          {lat: "35.514706", lng: "-89.912506"},
+          Math.floor(Date.now() / 1000),
+          Math.floor(addDays(Date.now(), 10)  / 1000),
+          {from: stranger, value: 100}
+      )
+
+    })
   })
 })
