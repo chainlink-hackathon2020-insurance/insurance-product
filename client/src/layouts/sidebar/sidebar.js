@@ -65,7 +65,7 @@ function SideBar({ window, drizzle }) {
         <Link to="/dashboard">
           <ListItem selected={getSelected("/dashboard")} button key={"Dashboard"}>
             <ListItemIcon><DashboardIcon /></ListItemIcon>
-            <ListItemText primary={"Dashboard"} />
+            <ListItemText primary={"Stats"} />
           </ListItem>
         </Link>
         <Divider />
