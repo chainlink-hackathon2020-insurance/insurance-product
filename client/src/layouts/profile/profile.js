@@ -100,18 +100,6 @@ function Profile({ address }, context) {
           </Typography>
                     </AccordionDetails>
                 </Accordion>
-                <Accordion square expanded={expanded === 'panel3'} onChange={handleChange('panel3')}>
-                    <AccordionSummary aria-controls="panel3d-content" id="panel3d-header">
-                        <Typography>Collapsible Group Item #3</Typography>
-                    </AccordionSummary>
-                    <AccordionDetails>
-                        <Typography>
-                            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse malesuada lacus ex,
-                            sit amet blandit leo lobortis eget. Lorem ipsum dolor sit amet, consectetur adipiscing
-                            elit. Suspendisse malesuada lacus ex, sit amet blandit leo lobortis eget.
-          </Typography>
-                    </AccordionDetails>
-                </Accordion>
                 <Modal isOpen={showModal}>
                     <Card width={"25%"} p={0}>
                         <Button.Text
