@@ -126,3 +126,4 @@ package-lock.json
 .DS_Store
 .idea
 .secrets.json
+.env

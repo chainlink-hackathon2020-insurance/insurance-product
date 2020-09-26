@@ -1,7 +1,14 @@
 const HDWalletProvider = require('@truffle/hdwallet-provider')
 const path = require('path');
+require('dotenv').config();
 
 module.exports = {
+  plugins: [
+    'truffle-plugin-verify'
+  ],
+  api_keys: {
+    etherscan: process.env.ETHERSCAN_API_KEY
+  },
   networks: {
     cldev: {
       host: '127.0.0.1',
@@ -17,7 +24,7 @@ module.exports = {
       provider: () => {
         return new HDWalletProvider(process.env.MNEMONIC, process.env.RPC_URL)
       },
-      network_id: '*',
+      network_id: 42,
       // ~~Necessary due to https://github.com/trufflesuite/truffle/issues/1971~~
       // Necessary due to https://github.com/trufflesuite/truffle/issues/3008
       skipDryRun: true,
