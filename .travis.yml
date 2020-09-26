@@ -7,11 +7,12 @@ addons:
     sources:
       - ubuntu-toolchain-r-test
     packages:
+      - build-essential
       - g++-4.8
 
 before_script:
-  - npm install -g ganache-cli
-  - npm install -g truffle@5.1.44
+  - npm install -g ganache-cli --supress-warnings
+  - npm install -g truffle@5.1.44 --supress-warnings
 
 install:
   - npm install --supress-warnings
