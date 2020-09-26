@@ -16,7 +16,7 @@ module.exports = async callback => {
             {lat: "35.514706", lng: "-89.912506"},
             Math.floor(Date.now() / 1000),
             Math.floor(addDays(Date.now(), 10)  / 1000),
-            { value: 100}
+            { value: 100 }
         )
         callback(tx.tx)
     } catch (err) {

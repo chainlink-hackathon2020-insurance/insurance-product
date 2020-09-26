@@ -87,7 +87,7 @@ contract('MarineInsurance', accounts => {
 
     const expectedOutOfRangeLevel = 75
     const responseOutOfRangeLevel =
-        web3.utils.padLeft(web3.utils.toHex(expectedNormalLevel), 64)
+        web3.utils.padLeft(web3.utils.toHex(expectedOutOfRangeLevel), 64)
 
     let request
 
@@ -139,6 +139,8 @@ contract('MarineInsurance', accounts => {
     })
 
     it('should pay claim if water level that day was out of range', async () => {
+      await insurance.sendTransaction({from: admin, value: 100});
+
       await insurance.registerInsurancePolicy(
           {shipmentValue: 100},
           {lat: "35.514706", lng: "-89.912506"},
@@ -146,7 +148,25 @@ contract('MarineInsurance', accounts => {
           Math.floor(addDays(Date.now(), 10)  / 1000),
           {from: stranger, value: 100}
       )
+      const balanceBefore = web3.utils.toBN(await web3.eth.getBalance(stranger));
 
+      const tx = await insurance.requestWaterLevelsManually(
+          { from: admin },
+      )
+      request = oracle.decodeRunRequest(tx.receipt.rawLogs[3])
+      await oc.fulfillOracleRequest(
+          ...oracle.convertFufillParams(request, responseOutOfRangeLevel, {
+            from: oracleNode,
+            gas: 500000,
+          })
+      )
+
+      const insurancePolicies = await insurance.getInsurancePolicies(stranger)
+      const insurancePolicy = insurancePolicies[0];
+      const balanceAfter = web3.utils.toBN(await web3.eth.getBalance(stranger));
+
+      assert(insurancePolicy.trackingData.currentWaterLevel === expectedOutOfRangeLevel.toString())
+      assert(balanceAfter.sub(balanceBefore).toNumber() === 100)
     })
   })
 })

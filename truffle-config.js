@@ -22,16 +22,6 @@ module.exports = {
       // Necessary due to https://github.com/trufflesuite/truffle/issues/3008
       skipDryRun: true,
     }
-    /*,
-    TODO: Consider deleting this
-    kovan: {
-      provider: () => new HDWalletProvider(
-        process.env.MNEMONIC, process.env.RPC_URL,
-        0,
-        1
-      ),
-      network_id: 42
-    }*/
   },
   compilers: {
     solc: {
