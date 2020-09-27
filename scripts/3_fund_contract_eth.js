@@ -1,7 +1,7 @@
 const MarineInsurance = artifacts.require('MarineInsurance')
 require('dotenv').config();
 
-const payment = process.env.TRUFFLE_CL_BOX_ETH_PAYMENT || '200'
+const payment = process.env.TRUFFLE_CL_BOX_ETH_PAYMENT || '2000'
 
 module.exports = async callback => {
     try {
