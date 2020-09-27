@@ -49,18 +49,20 @@ For deploying to live networks, Truffle will use `truffle-hdwallet-provider` for
 npm run migrate:live
 ```
 
+Note. The project has dotenv as dependency, therefore environment variables can be defined in an .env file at the root of the project.
+
 ## Helper Scripts
 
 There are 3 helper scripts provided with this box in the scripts directory:
-- `1_set_oracle_data.js`: Sets the Oracle Data to fetch water level.
+- `1_set_oracle_data.js`: Sets the Oracle Data to fetch water level. For Kovan a pre-coordinator smart contract is used.
 - `2_set_evaluation_period.js`: Sets the frequency of water level evaluation in seconds. By the default it's one day.
-- `3_fund_contract_eth.js`: Funds the contract with ETH
-- `4_fund_contract_link.js`: Funds the contract with LINK
-- `5_create_insurance_policy.js`: Creates an insurance policy with pre-defined data
+- `3_fund_contract_eth.js`: Funds the contract with ETH.
+- `4_fund_contract_link.js`: Funds the contract with LINK.
+- `5_create_insurance_policy.js`: Creates an insurance policy with pre-defined data.
 - `6_start_evaluation_period.js`: Triggers Chainlink Alarm to evaluate water levels depending on the set frequency. 
 - `change_water_level_manually.js`: Manually changes the water level of a given policy. This is used for demo purposes.
 - `get_insurance_policies.js`: Returns the policies and policy ids of the current user.
-- `request_water_level_manually.js`: 
+- `request_water_level_manually.js`: Performs the request of water levels.
 
 They can be used by calling them from `npx truffle exec`, for example:
 
