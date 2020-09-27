@@ -65,16 +65,16 @@ contract MarineInsurance is ChainlinkClient, Ownable{
     mapping(bytes32 => uint) requestToInsurancePolicyId;
 
     //Water level oracle data
-    address waterLevelOracle;
-    bytes32 waterLevelJobId;
-    uint256 waterLevelFee;
+    address public waterLevelOracle;
+    bytes32 public waterLevelJobId;
+    uint256 public waterLevelFee;
 
     //Water level evaluation period oracle data
-    address waterLevelEvaluationPeriodOracle;
-    bytes32 waterLevelEvaluationPeriodJobId;
-    uint256 waterLevelEvaluationPeriodFee;
-    uint256 waterLevelEvaluationPeriod;
-    bool waterLevelEvaluationPeriodActive;
+    address public waterLevelEvaluationPeriodOracle;
+    bytes32 public waterLevelEvaluationPeriodJobId;
+    uint256 public waterLevelEvaluationPeriodFee;
+    uint256 public waterLevelEvaluationPeriod;
+    bool public waterLevelEvaluationPeriodActive;
 
     constructor(address _linkTokenAddress, address _oracleAddress, bytes32 _jobId, uint256 _fee) public {
         waterLevelOracle = _oracleAddress;
@@ -94,7 +94,7 @@ contract MarineInsurance is ChainlinkClient, Ownable{
         return 100;
     }
 
-    function calculateDailyClaimPayouts(ShipData memory _shipData) public view returns(uint256) {
+    function calculateDailyClaimPayouts(ShipData memory _shipData) public pure returns(uint256) {
         //TODO: Implement payout calculation forumula
         return 100;
     }
@@ -136,6 +136,10 @@ contract MarineInsurance is ChainlinkClient, Ownable{
         insurancePolicyOwnership[msg.sender].push(identifier);
         emit InsurancePolicyCreation(msg.sender, identifier);
         return identifier;
+    }
+
+    function getInsurancePolicies() public view returns (InsurancePolicy[] memory){
+        return getInsurancePolicies(msg.sender);
     }
 
     function getInsurancePolicies(address owner) public view returns (InsurancePolicy[] memory){
@@ -201,18 +205,10 @@ contract MarineInsurance is ChainlinkClient, Ownable{
         waterLevelFee = _fee;
     }
 
-    function getWaterLevelOracleAddress() public view onlyOwner returns (address){
-        return waterLevelOracle;
-    }
-
     function setWaterLevelEvaluationPeriodOracle(address _oracleAddress, bytes32 _jobId, uint256 _fee) public onlyOwner{
         waterLevelEvaluationPeriodOracle = _oracleAddress;
         waterLevelEvaluationPeriodJobId = _jobId;
         waterLevelEvaluationPeriodFee = _fee;
-    }
-
-    function getWaterLevelEvaluationPeriodOracleAddress() public view onlyOwner returns (address) {
-        return waterLevelOracle;
     }
 
     function setWaterLevelEvaluationRequestPeriod(uint256 _seconds) public onlyOwner {
