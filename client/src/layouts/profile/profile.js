@@ -44,7 +44,12 @@ function Profile({ address, location }, context) {
 
     async function getPolicies() {
         setLoading(true);
-        const data = await contract.methods.getInsurancePolicies(address).call();
+        const ids = await contract.methods.getInsurancePolicyIds().call();
+        const data = await Promise.all(ids.map(async id => { 
+            let policy = await contract.methods.insurancePolicies(id).call();
+            policy.id = id;
+            return policy
+        }));
         setPolicies(data);
         setLoading(false);
     }
@@ -131,17 +136,17 @@ function Profile({ address, location }, context) {
                             {policies.length > 0 ? (<Table>
                                 <thead>
                                     <tr>
-                                        <th>Number</th>
-                                        <th>Water Level</th>
+                                        <th>POLICY #</th>
+                                        <th>Water Level (MSL in cm.)</th>
                                         <th>Water Data</th>
                                         <th>Details</th>
                                         <th>Policy Status</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {policies.map((policy, i) => (
+                                    {policies.map((policy) => (
                                         <tr>
-                                            <td>{i + 1}</td>
+                                            <td>{policy.id}</td>
                                             <td>{getWaterLevel(policy.trackingData.currentWaterLevel)}</td>
                                             <td>{getStatus(policy.trackingData.requestStatus)}</td>
                                             <td><Button icon="Pageview" icononly onClick={() => {
@@ -207,7 +212,7 @@ function Profile({ address, location }, context) {
                             <Heading.h3>Coverage Details</Heading.h3>
                             <Text>Start: {currentPolicy ? getTimestamp(currentPolicy.coverageData.startDate) : ''}</Text>
                             <Text>End: {currentPolicy ? getTimestamp(currentPolicy.coverageData.endDate) : ''}</Text>
-                            <Text>Water Levels Range: {currentPolicy ? currentPolicy.coverageData.waterLevelMin : ''} to {currentPolicy ? currentPolicy.coverageData.waterLevelMax : ''}</Text>
+                            <Text>Water Levels Range (MSL in cm.): {currentPolicy ? currentPolicy.coverageData.waterLevelMin : ''} to {currentPolicy ? currentPolicy.coverageData.waterLevelMax : ''}</Text>
                             <Text>Daily Claim Amount: {currentPolicy ? currentPolicy.coverageData.dailyClaimAmount : ''}</Text>
                             <Text>Beneficiary: {currentPolicy ? currentPolicy.coverageData.beneficiary : ''}</Text>
                             <Box style={{ height: '20vh', width: '100%' }} width={[1, 1, 1 / 2]} px={3}>

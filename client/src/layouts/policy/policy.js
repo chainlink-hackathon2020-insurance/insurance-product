@@ -154,7 +154,7 @@ function Policy({ accounts }, context) {
         ); case 3:
         calculateDailyClaimPayouts(contract)
         return (<div>
-          {claimPayout ? (<Text>Your estimated payout is: {claimPayout}</Text>) : <Loader size="40px"/>}
+          {claimPayout ? (<Text>Daily economic loss coverage (estimate): {claimPayout}</Text>) : <Loader size="40px"/>}
         </div>
         ); case 4:
         calculatePremium(contract)
