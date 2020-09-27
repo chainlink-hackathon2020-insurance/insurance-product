@@ -20,12 +20,16 @@ const connectWallet = () => {
 function HeaderNav({ drizzle, preflightCheck, address, accountBalances }) {
   const [account, setAccount] = useState(null);
   const [balance, setBalance] = useState(null);
-  const ethersProvider = new ethers.providers.Web3Provider(drizzle.web3.currentProvider);
-  
+  const [name, setName] = useState(null);
+  let provider  = new ethers.providers.Web3Provider(drizzle.web3.currentProvider);
+
   async function fetchEns() {
     try {
-      const name = await ethersProvider.lookupAddress(address);
-      setAccount(name)
+      const name = await provider.lookupAddress(address);
+      if(name) {
+        setName(name);
+      }
+      setAccount(address)
     } catch(e) {
       setAccount(address)
     }
@@ -60,7 +64,7 @@ function HeaderNav({ drizzle, preflightCheck, address, accountBalances }) {
                 Connected as
               </Text>
               <Text fontSize={1} color={"primary"}>
-                {account}
+                {name ? name : account}
               </Text>
             </Box>
           </Flex>
