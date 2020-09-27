@@ -9,10 +9,11 @@ module.exports = async callback => {
         await MarineInsurance.at(process.env.CONTRACT_ADDRESS) :
         await MarineInsurance.deployed()
 
+    // Kovan (using precoordinator address)
     const tx1 = await mc.setWaterLevelOracleData(
-        '0x121927a28b6C5a77064012d8dC0Df3Af81d175de',
-        web3.utils.toHex("818de5fad1514b3cb5f356c8200e265d"),
-        web3.utils.toWei('0.1', 'ether')
+        '0xe41899590E1d8a03EAE91aadaE91C3061329e8EF',
+        '0x3bca97023f282087d7e64440d444058ca06445db5aa12d3dd6ada9f101833760',
+        web3.utils.toWei('0.2', 'ether')
     );
     const tx2 = await mc.setWaterLevelEvaluationPeriodOracle(
         '0x2f90A6D021db21e1B2A077c5a37B3C7E75D15b7e',
