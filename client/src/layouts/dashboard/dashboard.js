@@ -22,7 +22,7 @@ function Dashboard({ accounts }, context) {
         data.forEach(x => {
             value += parseFloat(x.returnValues.amountPaid);
         })
-        return web3.utils.fromWei(value, 'ether') + ' ETH';
+        return web3.utils.fromWei(value.toString(), 'ether') + ' ETH';
     }
 
     async function fetchPastEvents() {
