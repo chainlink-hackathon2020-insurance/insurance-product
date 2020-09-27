@@ -15,6 +15,7 @@ import Overlay from 'pigeon-overlay'
 import MetaMaskIcon from "./../../images/icon-metamask.svg"
 import ErrorIcon from "./../../images/error.svg"
 import AnimatedIconProcessing from 'rimble-ui/dist/es/ToastMessage/AnimatedIconProcessing';
+import Conditions from "./../../images/conditions.png"
 
 const StyledButton = styled(ButtonMat)`
     margin-right: 1rem;
@@ -26,7 +27,7 @@ marginBottom: 1rem;
 `;
 
 function getSteps() {
-  return ['Dates', 'Locations', 'Cargo Details', 'Coverage & Payout', 'Review & Purchase'];
+  return ['Dates', 'Location', 'Cargo Details', 'Coverage Terms', 'Review & Purchase'];
 }
 
 
@@ -44,7 +45,7 @@ function Policy({ accounts }, context) {
   const [paymentComplete, setPaymentComplete] = useState(undefined);
   const [claimPayout, setClaimPayout] = useState(undefined);
   const [mapProperties, setMapProperties] = useState({
-    center: [43.76165780303581 , -77.23736067237853],
+    center: [43.76165780303581, -77.23736067237853],
     zoom: 4,
     minZoom: 3,
     maxZoom: 16,
@@ -71,8 +72,8 @@ function Policy({ accounts }, context) {
           <Form validated={true}>
             <Flex mx={-3} flexWrap={"wrap"}>
               <Box px={3}>
-                <Heading.h2>Protect your business with additional named peril insurance</Heading.h2>
-                <Heading.h5 color="#666">Insurance is a life preserver you can always count on when you are sailing through uncharted waters.</Heading.h5>
+                <Heading.h2>Please select a Start and End Date for your coverage period</Heading.h2>
+                <Heading.h5 color="#666">Applications must be submitted at least 1 days ahead of the start date of the coverage period. </Heading.h5>
               </Box>
             </Flex>
             <br />
@@ -123,7 +124,7 @@ function Policy({ accounts }, context) {
                 <Box width={[1, 1, 1 / 2]} px={3}>
                   <Flex mx={-3} flexWrap={"wrap"}>
                     <Box width={[1, 1, 1 / 2]} px={3}>
-                      <Field label="Starting location of voyage">
+                      <Field label="Select a river system or channel">
                         <Input type="text" disabled required value={locations.length > 0 ? getCordinateFormat(locations[0]) : ''} />
                       </Field>
                     </Box>
@@ -137,12 +138,14 @@ function Policy({ accounts }, context) {
         return (<div>
           <Form validated={true}>
             <Flex mx={-3} flexWrap={"wrap"}>
+              <Heading.h5 className="box-left-1" color="#666">Please describe your inland waterway shipment transportation details to calculate the named peril insurance premium.</Heading.h5>
               <Box width={[1, 1, 1 / 2]} px={3}>
-                <Field label="Shipment Value" width={1}>
+                <Field label="What is the SHIPMENT VALUE (In USD)?" width={1}>
                   <Input
                     type="number"
                     required // set required attribute to use brower's HTML5 input validation
                     width={1}
+                    min="0"
                     onChange={(e) => setCargoDetails({ shipmentValue: e.target.value })}
                     value={cargoDetails.shipmentValue}
                   />
@@ -154,7 +157,13 @@ function Policy({ accounts }, context) {
         ); case 3:
         calculateDailyClaimPayouts(contract)
         return (<div>
-          {claimPayout ? (<Text>Daily economic loss coverage (estimate): {claimPayout}</Text>) : <Loader size="40px"/>}
+          {claimPayout ? (<div><Text className="box-left-3">Your estimated daily payout is:   {web3.utils.fromWei(claimPayout, 'ether')} ETH
+          </Text>
+            <Image
+              src={Conditions}
+            />
+          </div>
+          ) : <Loader size="40px" />}
         </div>
         ); case 4:
         calculatePremium(contract)
@@ -175,7 +184,7 @@ function Policy({ accounts }, context) {
       setPremium(data);
     }
   }
-  
+
   async function calculateDailyClaimPayouts(contract) {
     if (!claimPayout) {
       const data = await contract.methods.calculateDailyClaimPayouts(
@@ -315,7 +324,7 @@ function Policy({ accounts }, context) {
                     lineHeight={"1.25em"}
                   >
                     {transaction ? 'Payment Sent with TX: ' + transaction :
-                     error ? error : 'Waiting for confirmation...'}
+                      error ? error : 'Waiting for confirmation...'}
 
                   </Text>
                 </Box>
@@ -511,7 +520,10 @@ function Policy({ accounts }, context) {
         }
         return true; //todo make true
       case 2:
-        return false;
+        if (cargoDetails.shipmentValue >= 0) {
+          return false;
+        }
+        return true;
       case 3:
         return false;
       case 4:

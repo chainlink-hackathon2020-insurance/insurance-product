@@ -45,7 +45,7 @@ function Profile({ address, location }, context) {
     async function getPolicies() {
         setLoading(true);
         const ids = await contract.methods.getInsurancePolicyIds().call();
-        const data = await Promise.all(ids.map(async id => { 
+        const data = await Promise.all(ids.map(async id => {
             let policy = await contract.methods.insurancePolicies(id).call();
             policy.id = id;
             return policy
@@ -61,20 +61,20 @@ function Profile({ address, location }, context) {
         if (now > endDate) {
             return (
                 <Tooltip message="Expired">
-                    <Icon name="Close"  color="red" />
+                    <Icon name="Close" color="red" />
                 </Tooltip>
             );
         }
         if (now >= startDate && now <= endDate) {
             return (
                 <Tooltip message="Active">
-                    <Icon name="Done"  color="green" />
-                     </Tooltip>
+                    <Icon name="Done" color="green" />
+                </Tooltip>
             );
         } else {
             return (
                 <Tooltip message="Inactive">
-                    <Icon name="Warning"  color="orange" />
+                    <Icon name="Warning" color="orange" />
                 </Tooltip>
             );
         }
@@ -210,11 +210,11 @@ function Profile({ address, location }, context) {
 
                         <Box p={4} mb={3}>
                             <Heading.h3>Coverage Details</Heading.h3>
-                            <Text>Start: {currentPolicy ? getTimestamp(currentPolicy.coverageData.startDate) : ''}</Text>
-                            <Text>End: {currentPolicy ? getTimestamp(currentPolicy.coverageData.endDate) : ''}</Text>
-                            <Text>Water Levels Range (MSL in cm.): {currentPolicy ? currentPolicy.coverageData.waterLevelMin : ''} to {currentPolicy ? currentPolicy.coverageData.waterLevelMax : ''}</Text>
-                            <Text>Daily Claim Amount: {currentPolicy ? currentPolicy.coverageData.dailyClaimAmount : ''}</Text>
-                            <Text>Beneficiary: {currentPolicy ? currentPolicy.coverageData.beneficiary : ''}</Text>
+                            <Text><b>Start:</b> {currentPolicy ? getTimestamp(currentPolicy.coverageData.startDate) : ''}</Text>
+                            <Text><b>End:</b> {currentPolicy ? getTimestamp(currentPolicy.coverageData.endDate) : ''}</Text>
+                            <Text><b>Water Levels Range (MSL in cm.):</b> {currentPolicy ? currentPolicy.coverageData.waterLevelMin : ''} to {currentPolicy ? currentPolicy.coverageData.waterLevelMax : ''}</Text>
+                            <Text><b>Daily Claim Amount:</b> {currentPolicy ? currentPolicy.coverageData.dailyClaimAmount : ''}</Text>
+                            <Text><b>Beneficiary:</b> {currentPolicy ? currentPolicy.coverageData.beneficiary : ''}</Text>
                             <Box style={{ height: '20vh', width: '100%' }} width={[1, 1, 1 / 2]} px={3}>
                                 {currentPolicy.trackingData ? (<Map
                                     center={[parseFloat(currentPolicy.trackingData.location.lat), parseFloat(currentPolicy.trackingData.location.lng)]}
