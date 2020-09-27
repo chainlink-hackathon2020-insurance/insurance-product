@@ -11,10 +11,10 @@ module.exports = async (deployer, network, [defaultAccount]) => {
     try {
       await deployer.deploy(LinkToken, { from: defaultAccount })
       await deployer.deploy(Oracle, LinkToken.address, { from: defaultAccount })
-      await deployer.deploy(MarineInsurance,
-          LinkToken.address,
+      const mc = await deployer.deploy(MarineInsurance, LinkToken.address)
+      await mc.setWaterLevelOracleData(
           Oracle.address,
-          web3.utils.toHex("dummyJobId"),
+          web3.utils.toHex("818de5fad1514b3cb5f356c8200e265d"),
           web3.utils.toWei('0.1', 'ether'))
     } catch (err) {
       console.error(err)
@@ -22,10 +22,6 @@ module.exports = async (deployer, network, [defaultAccount]) => {
   } else {
     // For live networks, use the 0 address to allow the ChainlinkRegistry
     // contract automatically retrieve the correct address for you
-    deployer.deploy(MarineInsurance,
-        '0x0000000000000000000000000000000000000000',
-        '0x121927a28b6C5a77064012d8dC0Df3Af81d175de',
-        web3.utils.toHex('818de5fad1514b3cb5f356c8200e265d'),
-        web3.utils.toWei('0.1', 'ether'))
+    deployer.deploy(MarineInsurance, '0x0000000000000000000000000000000000000000')
   }
 }

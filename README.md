@@ -45,14 +45,14 @@ npm run migrate:live
 
 There are 3 helper scripts provided with this box in the scripts directory:
 
-- `fund-contract-link.js`
+- `4_fund_contract_link.js`
 - `request-data.js`
 - `read-contract.js`
 
 They can be used by calling them from `npx truffle exec`, for example:
 
 ```bash
-npx truffle exec scripts/fund-contract-link.js --network live
+npx truffle exec scripts/4_fund_contract_link.js --network live
 ```
 
 The CLI will output something similar to the following:

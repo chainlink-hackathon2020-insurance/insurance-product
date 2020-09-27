@@ -1,5 +1,6 @@
 const MarineInsurance = artifacts.require('MarineInsurance')
 const LinkTokenInterface = artifacts.require('LinkTokenInterface')
+require('dotenv').config();
 
 /*
   This script is meant to assist with funding the requesting
@@ -12,7 +13,9 @@ const payment = process.env.TRUFFLE_CL_BOX_PAYMENT || '1000000000000000000'
 
 module.exports = async callback => {
   try {
-    const mc = await MarineInsurance.deployed()
+    const mc = process.env.CONTRACT_ADDRESS ?
+        await MarineInsurance.at(process.env.CONTRACT_ADDRESS) :
+        await MarineInsurance.deployed()
     const tokenAddress = await mc.getChainlinkToken()
     const token = await LinkTokenInterface.at(tokenAddress)
     console.log(`Token address: ${tokenAddress}`)

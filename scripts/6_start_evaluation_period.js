@@ -1,9 +1,11 @@
 const MarineInsurance = artifacts.require('MarineInsurance')
-
+require('dotenv').config();
 
 module.exports = async callback => {
     try {
-        const mc = await MarineInsurance.deployed()
+        const mc = process.env.CONTRACT_ADDRESS ?
+            await MarineInsurance.at(process.env.CONTRACT_ADDRESS) :
+            await MarineInsurance.deployed()
         const tx = await mc.startWaterLevelEvaluationRequestPeriod();
         callback(tx.tx)
     } catch (err) {

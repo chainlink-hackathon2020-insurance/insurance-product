@@ -21,8 +21,8 @@ contract('MarineInsurance', accounts => {
   beforeEach(async () => {
     link = await LinkToken.new({ from: defaultAccount })
     oc = await Oracle.new(link.address, { from: defaultAccount })
-    insurance = await MarineInsurance.new(link.address, oc.address, web3.utils.toHex("jobId"), web3.utils.toWei('1', 'ether'),
-        { from: admin })
+    insurance = await MarineInsurance.new(link.address, { from: admin })
+    
     await oc.setFulfillmentPermission(oracleNode, true, {
       from: defaultAccount,
     })
@@ -44,7 +44,7 @@ contract('MarineInsurance', accounts => {
       const dailyClaimPayout = await insurance.calculateDailyClaimPayouts(
           {shipmentValue: 100}
       );
-      assert(dailyClaimPayout.toNumber() === 100);
+      assert(dailyClaimPayout.toNumber() === 1000);
     })
   })
 
@@ -92,6 +92,10 @@ contract('MarineInsurance', accounts => {
     let request
 
     beforeEach(async () => {
+      await insurance.setWaterLevelOracleData(
+        oc.address,
+        web3.utils.toHex("jobId"),
+        web3.utils.toWei('1', 'ether'), {from: admin})
       await link.transfer(insurance.address, web3.utils.toWei('1', 'ether'), {
         from: defaultAccount
       })
@@ -105,6 +109,7 @@ contract('MarineInsurance', accounts => {
           Math.floor(substractDays(Date.now(), 10)  / 1000),
           {from: stranger, value: 100}
       )
+
       const tx = await insurance.requestWaterLevelsManually(
           { from: admin },
       )
@@ -120,7 +125,7 @@ contract('MarineInsurance', accounts => {
           Math.floor(addDays(Date.now(), 10)  / 1000),
           {from: stranger, value: 100}
       )
-
+      
       const tx = await insurance.requestWaterLevelsManually(
           { from: admin },
       )
@@ -139,7 +144,7 @@ contract('MarineInsurance', accounts => {
     })
 
     it('should pay claim if water level that day was out of range', async () => {
-      await insurance.sendTransaction({from: admin, value: 100});
+      await insurance.sendTransaction({from: admin, value: 1000});
 
       await insurance.registerInsurancePolicy(
           {shipmentValue: 100},
@@ -166,7 +171,7 @@ contract('MarineInsurance', accounts => {
       const balanceAfter = web3.utils.toBN(await web3.eth.getBalance(stranger));
 
       assert(insurancePolicy.trackingData.currentWaterLevel === expectedOutOfRangeLevel.toString())
-      assert(balanceAfter.sub(balanceBefore).toNumber() === 100)
+      assert(balanceAfter.sub(balanceBefore).toNumber() === 1000)
     })
   })
 })

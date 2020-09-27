@@ -61,7 +61,7 @@ contract MarineInsurance is ChainlinkClient, Ownable{
     );
 
     InsurancePolicy[] public insurancePolicies;
-    mapping(address => uint[]) insurancePolicyOwnership;
+    mapping(address => uint[]) public insurancePolicyOwnership;
     mapping(bytes32 => uint) requestToInsurancePolicyId;
 
     //Water level oracle data
@@ -76,10 +76,8 @@ contract MarineInsurance is ChainlinkClient, Ownable{
     uint256 public waterLevelEvaluationPeriod;
     bool public waterLevelEvaluationPeriodActive;
 
-    constructor(address _linkTokenAddress, address _oracleAddress, bytes32 _jobId, uint256 _fee) public {
-        waterLevelOracle = _oracleAddress;
-        waterLevelJobId = _jobId;
-        waterLevelFee = _fee;
+    constructor(address _linkTokenAddress) public {
+        waterLevelEvaluationPeriod = 86400; // seconds in a day
         if (_linkTokenAddress == address(0)) {
             setPublicChainlinkToken();
         } else {
@@ -96,7 +94,7 @@ contract MarineInsurance is ChainlinkClient, Ownable{
 
     function calculateDailyClaimPayouts(ShipData memory _shipData) public pure returns(uint256) {
         //TODO: Implement payout calculation forumula
-        return 100;
+        return 1000;
     }
 
     //Create an insurance policy record
@@ -142,8 +140,12 @@ contract MarineInsurance is ChainlinkClient, Ownable{
         return getInsurancePolicies(msg.sender);
     }
 
-    function getInsurancePolicies(address owner) public view returns (InsurancePolicy[] memory){
-        uint[] storage insurancePolicyIds = insurancePolicyOwnership[owner];
+    function getInsurancePolicyIds() public view returns (uint[] memory) {
+        return insurancePolicyOwnership[msg.sender];
+    }
+
+    function getInsurancePolicies(address beneficiary) public view returns (InsurancePolicy[] memory){
+        uint[] storage insurancePolicyIds = insurancePolicyOwnership[beneficiary];
         InsurancePolicy[] memory result = new InsurancePolicy[](insurancePolicyIds.length);
         for(uint i = 0; i < insurancePolicyIds.length; i++) {
             result[i] = insurancePolicies[insurancePolicyIds[i]];
@@ -194,18 +196,13 @@ contract MarineInsurance is ChainlinkClient, Ownable{
 
     /*----------  ADMINISTRATOR ONLY FUNCTIONS  ----------*/
 
-    //Create request to get water levels of coordinate
-    function requestWaterLevelsManually() public onlyOwner {
-        requestWaterLevels();
-    }
-
-    function setWaterLevelOracleData(address _oracleAddress, bytes32 _jobId, uint256 _fee) public onlyOwner{
+    function setWaterLevelOracleData(address _oracleAddress, bytes32 _jobId, uint256 _fee) public onlyOwner {
         waterLevelOracle = _oracleAddress;
         waterLevelJobId = _jobId;
         waterLevelFee = _fee;
     }
 
-    function setWaterLevelEvaluationPeriodOracle(address _oracleAddress, bytes32 _jobId, uint256 _fee) public onlyOwner{
+    function setWaterLevelEvaluationPeriodOracle(address _oracleAddress, bytes32 _jobId, uint256 _fee) public onlyOwner {
         waterLevelEvaluationPeriodOracle = _oracleAddress;
         waterLevelEvaluationPeriodJobId = _jobId;
         waterLevelEvaluationPeriodFee = _fee;
@@ -219,12 +216,35 @@ contract MarineInsurance is ChainlinkClient, Ownable{
         waterLevelEvaluationPeriodActive = _isActive;
     }
 
+    function requestWaterLevelsManually() public onlyOwner {
+        requestWaterLevels();
+    }
+
     function startWaterLevelEvaluationRequestPeriod() public onlyOwner {
         waterLevelEvaluationPeriodActive = true;
         Chainlink.Request memory req = buildChainlinkRequest(waterLevelEvaluationPeriodJobId, address(this),
             this.automatedWaterEvaluationLevelReceiver.selector);
         req.addUint("until", now + waterLevelEvaluationPeriod);
         sendChainlinkRequestTo(waterLevelEvaluationPeriodOracle, req, waterLevelEvaluationPeriodFee);
+    }
+
+    //@dev for demo
+    function changeWaterLevelManually(uint256 insurancePolicyIdentifier, int256 _level) public onlyOwner {
+        InsurancePolicy storage insurancePolicy = insurancePolicies[insurancePolicyIdentifier];
+        insurancePolicy.trackingData.currentWaterLevel = _level;
+        insurancePolicy.trackingData.requestStatus = RequestStatus.COMPLETED;
+        if (_level > insurancePolicy.coverageData.waterLevelMin &&
+            _level < insurancePolicy.coverageData.waterLevelMax) {
+            return;
+        }
+        //Create and pay claim
+        else {
+            uint amountToPayToday = insurancePolicy.coverageData.dailyClaimAmount;
+            insurancePolicy.coverageData.beneficiary.transfer(amountToPayToday);
+            emit ClaimPayout(insurancePolicy.coverageData.beneficiary,
+                insurancePolicyIdentifier,
+                amountToPayToday);
+        }
     }
 
     /*----------  PRIVATE FUNCTIONS  ----------*/

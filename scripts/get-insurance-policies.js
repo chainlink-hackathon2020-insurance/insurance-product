@@ -1,12 +1,14 @@
 const MarineInsurance = artifacts.require('MarineInsurance')
-
-/*
-  This script makes it easy to read the data variable
-  of the requesting contract.
-*/
+require('dotenv').config();
 
 module.exports = async callback => {
-    const mc = await MarineInsurance.deployed()
-    const data = await mc.getInsurancePolicies()
-    callback(data)
+    const mc = process.env.CONTRACT_ADDRESS ?
+        await MarineInsurance.at(process.env.CONTRACT_ADDRESS) :
+        await MarineInsurance.deployed()
+    console.log("Getting insurance policies")
+    const insurancePolicies = await mc.getInsurancePolicies()
+    console.log("Getting insurance policy ids")
+    const insurancePolicyIds = await mc.getInsurancePolicyIds()
+    console.log("Returning result")
+    callback(JSON.stringify({insurancePolicies,insurancePolicyIds}))
 }
